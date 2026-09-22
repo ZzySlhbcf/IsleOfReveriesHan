@@ -1,0 +1,64 @@
+@echo off
+chcp 936 >nul
+setlocal
+title Isle of Reveries 汉化补丁 - 官方更新后重建
+
+rem ============================================================
+rem  官方更新游戏之后运行本脚本：以新版 www\assets.dat 为底，
+rem  重新生成并安装简体中文汉化（自动备份原版 -> 重新解包 ->
+rem  重建字形/词典/运行时钩子 -> 校验 -> 安装）。
+rem
+rem  游戏目录写在下面这一行；如果你的游戏不在这里，用记事本把
+rem  GAME= 后面改成你的安装路径即可（结尾不要加反斜杠）。
+rem ============================================================
+set "GAME=D:\Games\Steam\steamapps\common\Isle of Reveries"
+set "HERE=%~dp0"
+
+if not exist "%GAME%\www\assets.dat" (
+  echo [错误] 找不到 %GAME%\www\assets.dat
+  echo         请用记事本打开本文件，把上面的 GAME= 改成你的游戏安装目录后重试。
+  pause
+  exit /b 1
+)
+
+rem ---- 找一个装了 pillow 的 Python3 ----
+rem 注意：不要用裸 python3 —— Windows 上的 python3 常常是微软商店的
+rem       0 字节占位存根，调用它只会得到“9009 找不到程序”。
+set "PY="
+python -c "import PIL" >nul 2>nul
+if not errorlevel 1 set "PY=python"
+if not defined PY (
+  py -3 -c "import PIL" >nul 2>nul
+  if not errorlevel 1 set "PY=py -3"
+)
+if not defined PY (
+  python3 -c "import PIL" >nul 2>nul
+  if not errorlevel 1 set "PY=python3"
+)
+if not defined PY (
+  echo [错误] 没有找到可用的 Python3 ^(或缺少 pillow^)。
+  echo         请先安装 Python3，并执行:  pip install pillow
+  pause
+  exit /b 1
+)
+
+rem 控制台是 936(GBK)，让 Python 的输出按 GBK 落地，中文才不是乱码
+set "PYTHONIOENCODING=gbk:replace"
+set "PYTHONUTF8=0"
+set "CN_GAME=%GAME%"
+
+echo 使用解释器: %PY%
+echo 将以「新版」游戏资源包为底，重新生成并安装汉化补丁 ...
+echo 全过程先自动备份新版英文包、重新解包、重建、校验；约 1-3 分钟。
+echo.
+%PY% "%HERE%mod_src\tools\update_repack.py" --game "%GAME%"
+if errorlevel 1 (
+  echo.
+  echo [失败] 重建没有成功。把上面的整段输出发给我，我来分析即可。
+  echo         游戏仍是英文原版（脚本不会写坏它）。
+  pause
+  exit /b 1
+)
+echo.
+echo 完成！启动游戏即为简体中文。
+pause

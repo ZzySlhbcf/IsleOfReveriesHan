@@ -1,0 +1,214 @@
+#!/usr/bin/env python3
+"""Re-build the Chinese patch after an official game update.
+
+Steam updates replace www/assets.dat wholesale, which wipes the patch (the game
+just goes back to English -- nothing of ours survives, so nothing can break).
+This script takes the *new* vanilla bundle and regenerates the patch from it:
+
+  1. refuse to run while the game is running
+  2. back the current (new vanilla) assets.dat up as assets.dat.cn-backup,
+     never overwriting a backup with an already-patched bundle
+  3. re-extract the new bundle (old snapshot kept as extracted_prev/)
+  4. rebuild the patched bundle (fonts, charset, dictionary, runtime hook)
+  5. validate it (repack identity, node --check, per-glyph pixel compare)
+  6. optionally install it into the game
+
+Everything version-specific (font object types, glyph sheets, instance data) is
+re-derived from the new data.json, so a normal content update needs no code
+change.  New or reworded English strings simply stay English until the
+dictionary is topped up: the runtime hook falls back to the original text.
+
+Usage:
+  python3 tools/update_repack.py                    # default game path
+  python3 tools/update_repack.py --game "D:\\Games\\Isle of Reveries" --no-install
+"""
+import argparse
+import datetime
+import hashlib
+import json
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
+sys.path.insert(0, os.path.join(ROOT, "tools"))
+
+# 默认游戏目录：优先环境变量 CN_GAME，其次本机实测路径，也可以用 --game 指定。
+DEFAULT_GAME = os.environ.get("CN_GAME") or \
+    r"D:\Games\Steam\steamapps\common\Isle of Reveries"
+PATCH_IMAGE_PREFIX = "images/cnfont_"
+PATCH_JS_MARKER = "\u7b80\u4f53\u4e2d\u6587\u8865\u4e01"   # 简体中文补丁
+
+
+def md5(path):
+    return hashlib.md5(open(path, "rb").read()).hexdigest()
+
+
+def is_patched(bundle):
+    """True if this bundle already carries our patch."""
+    try:
+        from c3bundle import read_directory
+        ents, _, ds = read_directory(bundle)
+        if any(e["name"].startswith(PATCH_IMAGE_PREFIX) for e in ents):
+            return True
+        f = open(bundle, "rb")
+        e = next(x for x in ents if x["name"] == "scripts/c3runtime.js")
+        f.seek(ds + e["offset"])
+        return PATCH_JS_MARKER in f.read(e["size"]).decode("utf-8", "ignore")
+    except Exception as exc:
+        print(f"  [警告] 无法判断该包是否已汉化（{exc}）；按“未汉化”处理")
+        return False
+
+
+def game_running():
+    out = subprocess.run(["tasklist", "/FI", "IMAGENAME eq Isle_of_Reveries.exe"],
+                         capture_output=True).stdout.decode("utf-8", "ignore")
+    return "Isle_of_Reveries" in out
+
+
+def work_root():
+    """Where the pipeline runs.
+
+    From the dev workspace (tools/ next to trans/) use it as is; from a shipped
+    copy (dist/mod_src/tools/...) copy tools+trans+fonts to a temp dir so the
+    delivery folder is never polluted with dev/, dist/ or extracted/.
+    """
+    if os.path.basename(ROOT) != "mod_src":
+        return ROOT
+    work = os.path.join(os.environ.get("TEMP") or tempfile.gettempdir(), "isle_cn_rebuild")
+    for sub in ("tools", "trans", "fonts"):
+        src = os.path.join(ROOT, sub)
+        if not os.path.isdir(src):
+            continue
+        dst = os.path.join(work, sub)
+        if os.path.isdir(dst):
+            shutil.rmtree(dst)
+        shutil.copytree(src, dst,
+                        ignore=shutil.ignore_patterns("__pycache__", "*.pyc",
+                                                    "*.orig"))
+    print(f"  （从交付目录运行：中间产物写到 {work}）")
+    return work
+
+
+def pipeline_env(game):
+    """子进程环境：告诉 build_cn_patch/validate_dist 原版参照包在哪。"""
+    env = os.environ.copy()
+    env["CN_VANILLA_BUNDLE"] = os.path.join(game, "www", "assets.dat")
+    env["CN_GAME"] = game
+    env["PYTHONIOENCODING"] = "utf-8:replace"
+    env["PYTHONUTF8"] = "1"
+    return env
+
+
+def run(cmd, cwd, capture=False, env=None):
+    # 子进程一律 UTF-8 输出（pipeline_env 里设了 PYTHONUTF8=1）；
+    # 不指定 encoding 的话 Python 会拿系统 ANSI(GBK) 去解 UTF-8，
+    # 中文一多就抛 UnicodeDecodeError 把校验结果吞掉。errors="replace"
+    # 保证最坏情况也只是显示成问号，不会让校验步骤整个挂掉。
+    r = subprocess.run(cmd, cwd=cwd, capture_output=capture, env=env,
+                       text=capture, encoding="utf-8" if capture else None,
+                       errors="replace" if capture else None)
+    if capture:
+        tail = "\n".join(((r.stdout or r.stderr or "").strip().splitlines())[-5:])
+        print(tail)
+    return r.returncode
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--game", default=DEFAULT_GAME)
+    ap.add_argument("--no-install", action="store_true")
+    a = ap.parse_args()
+    game = a.game
+    bundle = os.path.join(game, "www", "assets.dat")
+    if not os.path.exists(bundle):
+        sys.exit(f"[错误] 找不到 {bundle}")
+
+    if game_running():
+        print("  提示：检测到 Isle_of_Reveries.exe 进程（可能是残留/僵尸进程）。")
+        print("        真正的判据是下面的写权限：写不进去就会报错退出。")
+
+    patched = is_patched(bundle)
+    print(f"游戏资源包: {bundle}")
+    print(f"  大小 {os.path.getsize(bundle):,} 字节  md5 {md5(bundle)[:12]}  "
+          f"{'（已汉化）' if patched else '（英文原版）'}")
+
+    # 1) 备份：只在当前是真·原版时才覆盖 .cn-backup
+    bak = bundle + ".cn-backup"
+    if patched:
+        print("  → 当前包已经是汉化版，无需重建。")
+        print("     （官方更新后 Steam 会用英文版覆盖本文件，那时再运行本脚本即可；")
+        print("       想现在就强制重建，请先用 Steam「验证文件完整性」还原英文版。）")
+        return 0
+    else:
+        if os.path.exists(bak):
+            arch = f"{bak}.{datetime.datetime.now():%Y%m%d-%H%M%S}"
+            shutil.copy(bak, arch)
+            print(f"  旧备份存档 -> {os.path.basename(arch)}")
+        shutil.copy(bundle, bak)
+        print(f"  备份英文原版 -> {os.path.basename(bak)}")
+
+    # 2) 解包新版（在工作区里做）
+    work = work_root()
+    extracted = os.path.join(work, "extracted")
+    prev = os.path.join(work, "extracted_prev")
+    if os.path.isdir(prev):
+        shutil.rmtree(prev)
+    if os.path.isdir(extracted):
+        shutil.move(extracted, prev)
+        print("  旧解包快照 -> extracted_prev/")
+    sys.path.insert(0, os.path.join(work, "tools"))
+    from c3bundle import extract            # noqa: E402
+    extract(bundle, extracted)
+    print("  已解包新版 -> extracted/")
+
+    tools = os.path.join(work, "tools")
+    dist_bundle = os.path.join(work, "dist", "www", "assets.dat")
+
+    # 3) 重建
+    print("\n--- 重建汉化包 ---")
+    penv = pipeline_env(game)
+    for name in ("build_cn_patch.py", "make_dist.py"):
+        rc = run([sys.executable, os.path.join(tools, name)], work, env=penv)
+        if rc:
+            sys.exit(f"[失败] {name} 退出码 {rc}")
+
+    # 4) 校验
+    print("\n--- 校验 ---")
+    ok = True
+    rc = run([sys.executable, os.path.join(tools, "validate_dist.py")], work,
+             capture=True, env=penv)
+    ok &= rc == 0
+    rc = run([sys.executable, os.path.join(tools, "verify_glyphs.py"), "sheet", dist_bundle],
+             work, capture=True, env=penv)
+    ok &= rc == 0
+    if not ok:
+        sys.exit("[失败] 校验未通过：没有安装生成的资源包；请把上面的输出发给维护者")
+
+    src, tag = "?", "?"
+    try:
+        sys.path.insert(0, tools)
+        import make_dist
+        src, tag = make_dist.VERSION, make_dist.VERSION_TAG
+    except Exception as exc:
+        print(f"  （读不到版本号：{exc}）")
+    print(f"\n新汉化包: {dist_bundle}  {os.path.getsize(dist_bundle):,} 字节  "
+          f"md5 {md5(dist_bundle)[:12]}")
+    print(f"版本: {src} ({tag})")
+
+    # 5) 安装
+    if a.no_install:
+        print("（--no-install：未安装，可自行运行 dist\\安装.bat）")
+        return
+    shutil.copy(dist_bundle, bundle)
+    print(f"已安装到游戏: {bundle}  一致校验: {md5(dist_bundle) == md5(bundle)}")
+    d = json.load(open(os.path.join(work, "trans", "dict.json"), encoding="utf-8"))
+    print(f"词典 {len(d)} 条；官方新增/改写的英文句子会自动回退为英文，"
+          f"需要补译时把它们加进 trans/dict.json 后重跑本脚本即可。")
+
+
+if __name__ == "__main__":
+    main()

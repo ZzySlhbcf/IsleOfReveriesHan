@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.tmp
+*.bak
+.DS_Store
+
+# Rebuild intermediates; the distributable at repository root is tracked.
+mod_src/dev/
+mod_src/dist/
+mod_src/extracted/
+mod_src/extracted_prev/
+
