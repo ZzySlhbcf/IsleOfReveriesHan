@@ -6,6 +6,8 @@ import os
 import shutil
 import sys
 
+from resource_manifest import MANIFEST_NAME, write_manifest
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIST = os.path.join(ROOT, "dist")
 # 游戏目录：优先环境变量 CN_GAME，其次本机实测路径。安装.bat / 卸载.bat /
@@ -18,6 +20,13 @@ VERSION = os.environ.get("CN_PATCH_VERSION") or (
     f"润色版 对白11x11/菜单与说明9x10 ({_BUILD_DAY})")
 VERSION_TAG = os.environ.get("CN_PATCH_TAG") or f"cn_patch_rebuild_{_BUILD_DAY}"
 GLYPH_COUNT = os.environ.get("CN_GLYPH_COUNT") or "1857"
+
+# Some stock Windows PowerShell installations cannot auto-load Get-FileHash.
+# .NET MD5 is available in Windows PowerShell 5.1 without importing modules.
+HASH_COMMAND = ("powershell -NoProfile -Command "
+                "\"([BitConverter]::ToString([Security.Cryptography.MD5]::Create()"
+                ".ComputeHash([IO.File]::ReadAllBytes($env:TARGET))))"
+                ".Replace([string][char]45,[string]::Empty).ToLowerInvariant()\"")
 
 INSTALL = r"""@echo off
 chcp 936 >nul
@@ -44,7 +53,7 @@ if not exist "%GAME%\www\assets.dat" (
 
 set "TARGET=%GAME%\www\assets.dat"
 set "CURMD5="
-for /f "delims=" %%H in ('powershell -NoProfile -Command "(Get-FileHash -LiteralPath $env:TARGET -Algorithm MD5).Hash.ToLowerInvariant()"') do set "CURMD5=%%H"
+for /f "delims=" %%H in ('{hash_command}') do set "CURMD5=%%H"
 if not defined CURMD5 (
   echo [错误] 无法读取当前游戏资源包的 MD5，安装已取消。
   pause
@@ -111,7 +120,7 @@ if not exist "%GAME%\www\assets.dat.cn-backup" (
 
 set "TARGET=%GAME%\www\assets.dat"
 set "CURMD5="
-for /f "delims=" %%H in ('powershell -NoProfile -Command "(Get-FileHash -LiteralPath $env:TARGET -Algorithm MD5).Hash.ToLowerInvariant()"') do set "CURMD5=%%H"
+for /f "delims=" %%H in ('{hash_command}') do set "CURMD5=%%H"
 if /I "%CURMD5%"=="%BASEMD5%" (
   echo 当前已经是与本补丁匹配的英文原版，无需卸载。
   pause
@@ -126,7 +135,7 @@ if /I not "%CURMD5%"=="%PATCHMD5%" (
 
 set "TARGET=%GAME%\www\assets.dat.cn-backup"
 set "BAKMD5="
-for /f "delims=" %%H in ('powershell -NoProfile -Command "(Get-FileHash -LiteralPath $env:TARGET -Algorithm MD5).Hash.ToLowerInvariant()"') do set "BAKMD5=%%H"
+for /f "delims=" %%H in ('{hash_command}') do set "BAKMD5=%%H"
 if /I not "%BAKMD5%"=="%BASEMD5%" (
   echo [错误] 备份文件与本补丁对应的英文原版不匹配，拒绝还原。
   echo         请使用 Steam 的“验证文件完整性”。
@@ -135,7 +144,21 @@ if /I not "%BAKMD5%"=="%BASEMD5%" (
 )
 
 copy /Y "%GAME%\www\assets.dat.cn-backup" "%GAME%\www\assets.dat" >nul
-echo 已还原为英文原版. 备份文件保留在 www\assets.dat.cn-backup
+if errorlevel 1 (
+  echo [错误] 还原失败，请先退出游戏，再重试。
+  pause
+  exit /b 1
+)
+set "TARGET=%GAME%\www\assets.dat"
+set "RESTOREDMD5="
+for /f "delims=" %%H in ('{hash_command}') do set "RESTOREDMD5=%%H"
+if /I not "%RESTOREDMD5%"=="%BASEMD5%" (
+  echo [错误] 还原后的资源包校验失败，请勿继续使用，尝试 Steam 验证文件完整性。
+  pause
+  exit /b 1
+)
+echo 已还原整个英文原版资源包，汉化贴图、字体和文字均已撤销。
+echo 英文备份保留在 www\assets.dat.cn-backup
 pause
 """
 
@@ -156,7 +179,8 @@ README = r"""Isle of Reveries 简体中文汉化补丁
 
 二、卸载
 --------
-双击 卸载.bat，会把 www\assets.dat 还原成英文原版。
+双击 卸载.bat，会把整个 www\assets.dat 还原成英文原版，贴图也一并恢复；
+只在当前包与本补丁、英文备份与本游戏版本均匹配时才会写入。
 若备份丢失，可在 Steam 里：右键游戏 → 属性 → 已安装文件 → 验证文件完整性。
 
 三、原理与范围
@@ -213,7 +237,9 @@ Steam 更新会整体覆盖 www\assets.dat，补丁会被冲掉（游戏回到�
 * 补丁只改 www\assets.dat 一个文件，不改动 exe、存档与 Steam 配置；
 * 弹琴传送、建造、世界地图、控制设置、存档选择、图鉴/外观、相册、多人暂停和
   六个地牢开场标题中原本烘焙在图片里的文字均已重绘为中文；
-* 13 种运行时动态拼接的数量/进度句型已通过受限模板汉化。
+  * 13 种运行时动态拼接的数量/进度句型已通过受限模板汉化。
+* 替换资源清单记录资源包内每项变化的原版/汉化 SHA-256；更新后若原图
+  发生变化，自动重建会先停止，防止旧贴图坐标误盖新版美术。
 
 已知会影响观感的地方
 --------------------
@@ -229,6 +255,7 @@ www\assets.dat ......... 汉化后的资源包（直接使用）
 卸载.bat ................ 还原英文原版
 官方更新后重建.bat ...... 官方更新游戏后，用它以新版资源包重建汉化
 版本.txt ................ 本补丁的版本号、字节数与 md5（装完可核对）
+替换资源清单.json ....... 逐文件 SHA-256 与原图对应关系（官方更新时可比对）
 说明.txt ................ 本文件
 mod_src\ ................ 源码与工具（可自行修改后重新构建；需要 Python3 + pillow）
     tools\c3bundle.py            Construct 3 资源包解包/重打包
@@ -255,12 +282,17 @@ def main():
         sys.exit(f"[错误] 找不到待发布资源包: {bundle}")
     base_md5 = hashlib.md5(open(vanilla, "rb").read()).hexdigest()
     patch_md5 = hashlib.md5(open(bundle, "rb").read()).hexdigest()
+    inventory = write_manifest(vanilla, bundle, os.path.join(DIST, MANIFEST_NAME))
+    print(MANIFEST_NAME, "替换", len(inventory["modified"]),
+          "新增", len(inventory["added"]), "删除", len(inventory["removed"]))
     with open(os.path.join(DIST, "安装.bat"), "w", encoding="gbk", newline="\r\n") as f:
         f.write(INSTALL.replace("{game}", GAME).replace("{ver}", VERSION)
-                .replace("{base_md5}", base_md5).replace("{patch_md5}", patch_md5))
+                .replace("{base_md5}", base_md5).replace("{patch_md5}", patch_md5)
+                .replace("{hash_command}", HASH_COMMAND))
     with open(os.path.join(DIST, "卸载.bat"), "w", encoding="gbk", newline="\r\n") as f:
         f.write(UNINSTALL.replace("{game}", GAME)
-                .replace("{base_md5}", base_md5).replace("{patch_md5}", patch_md5))
+                .replace("{base_md5}", base_md5).replace("{patch_md5}", patch_md5)
+                .replace("{hash_command}", HASH_COMMAND))
     with open(os.path.join(DIST, "说明.txt"), "w", encoding="utf-8-sig", newline="\r\n") as f:
         f.write(README.replace("{game}", GAME).replace("{glyphs}", GLYPH_COUNT))
     # 官方更新后重建脚本（模板见 tools/repack_bat.txt）

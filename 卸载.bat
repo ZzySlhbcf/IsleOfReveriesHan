@@ -17,7 +17,7 @@ if not exist "%GAME%\www\assets.dat.cn-backup" (
 
 set "TARGET=%GAME%\www\assets.dat"
 set "CURMD5="
-for /f "delims=" %%H in ('powershell -NoProfile -Command "(Get-FileHash -LiteralPath $env:TARGET -Algorithm MD5).Hash.ToLowerInvariant()"') do set "CURMD5=%%H"
+for /f "delims=" %%H in ('powershell -NoProfile -Command "([BitConverter]::ToString([Security.Cryptography.MD5]::Create().ComputeHash([IO.File]::ReadAllBytes($env:TARGET)))).Replace([string][char]45,[string]::Empty).ToLowerInvariant()"') do set "CURMD5=%%H"
 if /I "%CURMD5%"=="%BASEMD5%" (
   echo 当前已经是与本补丁匹配的英文原版，无需卸载。
   pause
@@ -32,7 +32,7 @@ if /I not "%CURMD5%"=="%PATCHMD5%" (
 
 set "TARGET=%GAME%\www\assets.dat.cn-backup"
 set "BAKMD5="
-for /f "delims=" %%H in ('powershell -NoProfile -Command "(Get-FileHash -LiteralPath $env:TARGET -Algorithm MD5).Hash.ToLowerInvariant()"') do set "BAKMD5=%%H"
+for /f "delims=" %%H in ('powershell -NoProfile -Command "([BitConverter]::ToString([Security.Cryptography.MD5]::Create().ComputeHash([IO.File]::ReadAllBytes($env:TARGET)))).Replace([string][char]45,[string]::Empty).ToLowerInvariant()"') do set "BAKMD5=%%H"
 if /I not "%BAKMD5%"=="%BASEMD5%" (
   echo [错误] 备份文件与本补丁对应的英文原版不匹配，拒绝还原。
   echo         请使用 Steam 的“验证文件完整性”。
@@ -41,5 +41,19 @@ if /I not "%BAKMD5%"=="%BASEMD5%" (
 )
 
 copy /Y "%GAME%\www\assets.dat.cn-backup" "%GAME%\www\assets.dat" >nul
-echo 已还原为英文原版. 备份文件保留在 www\assets.dat.cn-backup
+if errorlevel 1 (
+  echo [错误] 还原失败，请先退出游戏，再重试。
+  pause
+  exit /b 1
+)
+set "TARGET=%GAME%\www\assets.dat"
+set "RESTOREDMD5="
+for /f "delims=" %%H in ('powershell -NoProfile -Command "([BitConverter]::ToString([Security.Cryptography.MD5]::Create().ComputeHash([IO.File]::ReadAllBytes($env:TARGET)))).Replace([string][char]45,[string]::Empty).ToLowerInvariant()"') do set "RESTOREDMD5=%%H"
+if /I not "%RESTOREDMD5%"=="%BASEMD5%" (
+  echo [错误] 还原后的资源包校验失败，请勿继续使用，尝试 Steam 验证文件完整性。
+  pause
+  exit /b 1
+)
+echo 已还原整个英文原版资源包，汉化贴图、字体和文字均已撤销。
+echo 英文备份保留在 www\assets.dat.cn-backup
 pause

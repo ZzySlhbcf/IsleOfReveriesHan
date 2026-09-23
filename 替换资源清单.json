@@ -1,0 +1,437 @@
+{
+  "schema_version": 1,
+  "note": "assets.dat 为整包替换；卸载时还原英文原包，不逐张覆盖贴图。",
+  "base_bundle": {
+    "size": 72229182,
+    "md5": "e7ce2ff29ce2dfcbcbf7bf232ef2e97c"
+  },
+  "patch_bundle": {
+    "size": 73284979,
+    "md5": "57c99a77e9c7028aaab090d463029df6"
+  },
+  "modified": [
+    {
+      "path": "data.json",
+      "purpose": "汉化文字与字形元数据",
+      "original": {
+        "size": 27481587,
+        "sha256": "ca78a807c03e173333b5e3effd0f43635cf28c0739dab07104f672b3717c4336"
+      },
+      "localized": {
+        "size": 27481286,
+        "sha256": "4d084daccf98bdac442e3853314b7ebd7420053d8f96b602f3c7fba250ca10d2"
+      }
+    },
+    {
+      "path": "images/album_inputprompt-sheet0.webp",
+      "purpose": "相册操作提示",
+      "original": {
+        "size": 1124,
+        "sha256": "aaf8965e7191f1b355c5d46570f90c5057a29e23264ae3a422a7dc6a896f92f8"
+      },
+      "localized": {
+        "size": 514,
+        "sha256": "a555c668c11d113c2463c2c5ccc0b2ee5d094e3eac308441fbc561b864f24933"
+      }
+    },
+    {
+      "path": "images/buildmenu_pages-sheet0.webp",
+      "purpose": "建造列表及详情",
+      "original": {
+        "size": 21316,
+        "sha256": "711d6157f2e8a2dbbfa3acebb8f4d69cab1799ed8dede03cbb7b52d37dceeabb"
+      },
+      "localized": {
+        "size": 4540,
+        "sha256": "32226c1fc37bbb7b2e31e8018ce3afad2340cc25648a91022fdd27228af1ff7d"
+      }
+    },
+    {
+      "path": "images/buildmenu_pages-sheet1.webp",
+      "purpose": "建造列表及详情",
+      "original": {
+        "size": 4714,
+        "sha256": "fcfae53f8c5c6acd121981ca675c5e8dbb733e8920230a92c5685b2927a9fc51"
+      },
+      "localized": {
+        "size": 856,
+        "sha256": "9913474849df79e05834dbb7e463ff01474d54df473a8a3a4b89fefd3884b3cd"
+      }
+    },
+    {
+      "path": "images/buildmenubg-sheet0.webp",
+      "purpose": "建造页标题",
+      "original": {
+        "size": 990,
+        "sha256": "f99a7a50025ff8294d8ec4db77c0f9ee7e5a1c05e3503068a25c15e5ea287f9b"
+      },
+      "localized": {
+        "size": 362,
+        "sha256": "68dedd9d65b7698a58e4ae09b9b1aaee24d4649ca36f25e3a0cd6f352f0a6b9a"
+      }
+    },
+    {
+      "path": "images/controlsbg-sheet0.webp",
+      "purpose": "控制设置背景文字",
+      "original": {
+        "size": 1402,
+        "sha256": "d34d1e9fbcae175bfd77a458c27e20176a7a91d1d606f1c73291a60c87a7a89e"
+      },
+      "localized": {
+        "size": 698,
+        "sha256": "caa16225e92a425a348e3cc2768b3d3725b0682b39ac7d931ee011bb8b3feb3c"
+      }
+    },
+    {
+      "path": "images/displaybugmenubg-sheet0.webp",
+      "purpose": "虫子图鉴页签",
+      "original": {
+        "size": 1644,
+        "sha256": "d9f9c583bef796b4855875539d98c4824cbe8db578754beb4b02bd072f802525"
+      },
+      "localized": {
+        "size": 926,
+        "sha256": "fed6f908002278af31e4384adf0fe7dcbc38f46b1488f59ba6bbd507dbc0114c"
+      }
+    },
+    {
+      "path": "images/dungeon_title-sheet0.webp",
+      "purpose": "地牢开场标题",
+      "original": {
+        "size": 133124,
+        "sha256": "3fd9886a5d5df94fd47db36af877a699a467a844918df82232bdc0e2f64e845c"
+      },
+      "localized": {
+        "size": 34912,
+        "sha256": "78cad0211971392b123850644435181d13eab214b04622171cc6a3beb3903144"
+      }
+    },
+    {
+      "path": "images/fashionmenubg-sheet0.webp",
+      "purpose": "外观颜色选项",
+      "original": {
+        "size": 954,
+        "sha256": "60be711acb7a0991408cc4a87c8761aeff438dfb58606c829ea16a2c95e59d41"
+      },
+      "localized": {
+        "size": 308,
+        "sha256": "7cf26c84ca65fb462a07b9c4478cafd74745c3fd72329475205c487170147735"
+      }
+    },
+    {
+      "path": "images/fileselect_cursor-sheet0.webp",
+      "purpose": "存档选择按钮",
+      "original": {
+        "size": 3398,
+        "sha256": "e56c24c865b0cf08bdd285ef7a722f07911e4ee2a787703ecbf41d0d576d655d"
+      },
+      "localized": {
+        "size": 1934,
+        "sha256": "d43a829ab2ca42ad1303ae0506ef4304a6c3fe94dee4869d7b5679b0d1913b40"
+      }
+    },
+    {
+      "path": "images/mp_pause-sheet0.webp",
+      "purpose": "多人暂停选项",
+      "original": {
+        "size": 1306,
+        "sha256": "719f28c142cf8bd7d045f470219b2185cd57ebb013505d5437b56c0dda5cbf08"
+      },
+      "localized": {
+        "size": 280,
+        "sha256": "2fc5fd968620e08b612bfc42df6a54b83da687574ea755c1ff8ce10059a89a3a"
+      }
+    },
+    {
+      "path": "images/shared-1-sheet0.webp",
+      "purpose": "移动控制提示",
+      "original": {
+        "size": 8108,
+        "sha256": "39e5df29a8640ea1b934236b6bad451d0cac871d78890689db4b71a39bbc4574"
+      },
+      "localized": {
+        "size": 6002,
+        "sha256": "af8492f13d0e345a68df6f5a706535baaea111d29a8a4de46b92daa601a6ebe2"
+      }
+    },
+    {
+      "path": "images/shared-4-sheet1.webp",
+      "purpose": "建造操作条",
+      "original": {
+        "size": 6566,
+        "sha256": "6091b4e1b9982699206b9eaeead459e1b37189e47ae4fd7f7eaac7fcf69bfa56"
+      },
+      "localized": {
+        "size": 4472,
+        "sha256": "b6155d70f34cc0c0d443c2ffa15a96b150e90de53037becfa3e7e83d4623a2f7"
+      }
+    },
+    {
+      "path": "images/shared-9-sheet6.webp",
+      "purpose": "读取存档确认框",
+      "original": {
+        "size": 37528,
+        "sha256": "e6cc19d4d5e5d94918089aac2805eca93a62954ae6c6eddbff6e754cdd26782c"
+      },
+      "localized": {
+        "size": 23406,
+        "sha256": "ac8d33b1861a378dc69f4295ec5dcb0dda9043991a631057a3929e2a8130fa0e"
+      }
+    },
+    {
+      "path": "images/trinketmenubg-sheet0.webp",
+      "purpose": "饰品页签",
+      "original": {
+        "size": 3386,
+        "sha256": "0d7390668c16322850a3068be0b7d4b63c6a1ff35dbef8f8aec35ed648daa6da"
+      },
+      "localized": {
+        "size": 2076,
+        "sha256": "ea5d48a46bada7a12b5d9964a98b370db8eb74a1375a729cbc0bc5d4fa71048b"
+      }
+    },
+    {
+      "path": "images/warpmenu_hiddentext-sheet0.webp",
+      "purpose": "传送目的地及建筑解锁名称",
+      "original": {
+        "size": 2952,
+        "sha256": "2c59d19090e1f6e7d0c2b6d4f0d5f7008c2ff3c75c9f73186949a6eb394152c3"
+      },
+      "localized": {
+        "size": 730,
+        "sha256": "70baeca8bd0569fe47b79b3be0f2c2b8b91f92fa137f0f678614457c1ebaa99c"
+      }
+    },
+    {
+      "path": "images/warpmenubg-sheet0.webp",
+      "purpose": "传送页标题和返回",
+      "original": {
+        "size": 1074,
+        "sha256": "56e69e01221f818a9c14487a0dd3db1dc914c1ab22957a857aeb6442d8062239"
+      },
+      "localized": {
+        "size": 412,
+        "sha256": "8a3bab0c37370f769b6971ef3f0fc99eb73c9b6b4b1cb3e29497cdad5efccb57"
+      }
+    },
+    {
+      "path": "images/worldmapbg-sheet0.webp",
+      "purpose": "世界地图地区名及展开",
+      "original": {
+        "size": 6940,
+        "sha256": "127f13972550f41e4cbff5ce44866272908b1ce9a7761002b78df8ce83fbec16"
+      },
+      "localized": {
+        "size": 1144,
+        "sha256": "6ca93a99958defa3be06ba8c9d5a8f8b6ff8cbe2874ac6416564b5d41876b404"
+      }
+    },
+    {
+      "path": "scripts/c3runtime.js",
+      "purpose": "汉化文字与字形元数据",
+      "original": {
+        "size": 2066379,
+        "sha256": "a47e282ed118e1eb6dfa5b487735d1a97de384a53bb7a44de168a6b80023d80f"
+      },
+      "localized": {
+        "size": 2863651,
+        "sha256": "5e020977d86dbb0b56ba46ce4936f5a785f2d5ac370811ccf0992382627cfbb6"
+      }
+    }
+  ],
+  "added": [
+    {
+      "path": "images/cnfont_BugMuseumMenuText.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 18556,
+        "sha256": "5f281404689410b52d396c16fa302786f709a9dec0648104a831cc4824bd1c82"
+      }
+    },
+    {
+      "path": "images/cnfont_BuildMenuName.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 18556,
+        "sha256": "5f281404689410b52d396c16fa302786f709a9dec0648104a831cc4824bd1c82"
+      }
+    },
+    {
+      "path": "images/cnfont_CoinCount.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 12778,
+        "sha256": "3fcaa24ab419b2a2e82d5d5209939c1bc778634e1cb772ce9612d2277700129e"
+      }
+    },
+    {
+      "path": "images/cnfont_ControlsMenu_Keyboard.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 12798,
+        "sha256": "df27977e1dc6fe2ae3c1317df02f89adf410fe890b4b64044dedebf120f7102a"
+      }
+    },
+    {
+      "path": "images/cnfont_FairyCount.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 12846,
+        "sha256": "8e3b3fa796c05d70ef8df00ec7b5ba9496cf256545202e2fddb52c1e49d4b080"
+      }
+    },
+    {
+      "path": "images/cnfont_HUD_BindingsKeyboard.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 14368,
+        "sha256": "7c11c9d7fb9f1fc124c88e126c8e871ec59a2c91414eec3c1e10d387bfb9cd74"
+      }
+    },
+    {
+      "path": "images/cnfont_HUD_FairyCount.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 12778,
+        "sha256": "3fcaa24ab419b2a2e82d5d5209939c1bc778634e1cb772ce9612d2277700129e"
+      }
+    },
+    {
+      "path": "images/cnfont_HUD_KeyCount.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 12778,
+        "sha256": "3fcaa24ab419b2a2e82d5d5209939c1bc778634e1cb772ce9612d2277700129e"
+      }
+    },
+    {
+      "path": "images/cnfont_ItemDescription.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 18556,
+        "sha256": "5f281404689410b52d396c16fa302786f709a9dec0648104a831cc4824bd1c82"
+      }
+    },
+    {
+      "path": "images/cnfont_KeyCount.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 12846,
+        "sha256": "8e3b3fa796c05d70ef8df00ec7b5ba9496cf256545202e2fddb52c1e49d4b080"
+      }
+    },
+    {
+      "path": "images/cnfont_MP_HUD_BindingsKeyboard.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 12820,
+        "sha256": "e5be4c2ea3c058eaf9d1becb8122e70f2064d3a0611528d94bff138d5a767307"
+      }
+    },
+    {
+      "path": "images/cnfont_Map_KeyboardBind.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 12806,
+        "sha256": "f522b3626141b1ae612b3ec08df2ff1971235e39c8f23ec30363ca918fb6ef63"
+      }
+    },
+    {
+      "path": "images/cnfont_MenuName.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 18556,
+        "sha256": "5f281404689410b52d396c16fa302786f709a9dec0648104a831cc4824bd1c82"
+      }
+    },
+    {
+      "path": "images/cnfont_Multiplayer_RoomNum.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 12762,
+        "sha256": "efadaeee68730ddc4620bd01afa27575838d0d4ac9c504197a7bb8d91e1c802c"
+      }
+    },
+    {
+      "path": "images/cnfont_NoteMenuName.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 18556,
+        "sha256": "5f281404689410b52d396c16fa302786f709a9dec0648104a831cc4824bd1c82"
+      }
+    },
+    {
+      "path": "images/cnfont_ShellCount.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 12778,
+        "sha256": "3fcaa24ab419b2a2e82d5d5209939c1bc778634e1cb772ce9612d2277700129e"
+      }
+    },
+    {
+      "path": "images/cnfont_SlideIn_Count.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 12846,
+        "sha256": "c07a37df8ec991e6df92a94d12199b71b44b05166f80845e5a2474c4dfb5bd44"
+      }
+    },
+    {
+      "path": "images/cnfont_SpriteFont_Credits.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 26128,
+        "sha256": "d58d0e4dfa61477291d489665042585b28a776d059bf855cacc9e6883f08e7a6"
+      }
+    },
+    {
+      "path": "images/cnfont_SpriteFont_Dialogue.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 26158,
+        "sha256": "4bd6926cf3d767c0d4d5ab3ea989f1ecb260c82cb10ada8915a1b091b21ce50b"
+      }
+    },
+    {
+      "path": "images/cnfont_SpriteFont_Fishing.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 26158,
+        "sha256": "4bd6926cf3d767c0d4d5ab3ea989f1ecb260c82cb10ada8915a1b091b21ce50b"
+      }
+    },
+    {
+      "path": "images/cnfont_TitleDeathCount.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 12786,
+        "sha256": "49ea1e57ed2e455aeae0601a7ff0b62cbf3ca1638bbff52e68bb564bc2302155"
+      }
+    },
+    {
+      "path": "images/cnfont_TitleScreenText.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 26158,
+        "sha256": "4bd6926cf3d767c0d4d5ab3ea989f1ecb260c82cb10ada8915a1b091b21ce50b"
+      }
+    },
+    {
+      "path": "images/cnfont_TitleTexts.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 26158,
+        "sha256": "4bd6926cf3d767c0d4d5ab3ea989f1ecb260c82cb10ada8915a1b091b21ce50b"
+      }
+    },
+    {
+      "path": "images/cnfont_TrinketMenuName.webp",
+      "purpose": "新增中文字形图集",
+      "localized": {
+        "size": 18556,
+        "sha256": "5f281404689410b52d396c16fa302786f709a9dec0648104a831cc4824bd1c82"
+      }
+    }
+  ],
+  "removed": []
+}

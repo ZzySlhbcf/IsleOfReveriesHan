@@ -10,6 +10,8 @@ import tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 from c3bundle import extract, read_directory, pack      # noqa: E402
+from resource_manifest import (EXPECTED_CHANGED, MANIFEST_NAME,
+                               create_manifest)         # noqa: E402
 from PIL import Image                                   # noqa: E402
 
 BUNDLE = os.path.join(ROOT, "dist", "www", "assets.dat")
@@ -116,24 +118,23 @@ def main():
     print("删除文件:", removed)
     print("内容变化的原文件:", changed)
 
-    expected_changed = {
-        "data.json", "scripts/c3runtime.js",
-        "images/warpmenubg-sheet0.webp", "images/warpmenu_hiddentext-sheet0.webp",
-        "images/buildmenubg-sheet0.webp", "images/buildmenu_pages-sheet0.webp",
-        "images/buildmenu_pages-sheet1.webp", "images/shared-4-sheet1.webp",
-        "images/worldmapbg-sheet0.webp", "images/controlsbg-sheet0.webp",
-        "images/shared-1-sheet0.webp", "images/fileselect_cursor-sheet0.webp",
-        "images/shared-9-sheet6.webp", "images/displaybugmenubg-sheet0.webp",
-        "images/trinketmenubg-sheet0.webp", "images/fashionmenubg-sheet0.webp",
-        "images/album_inputprompt-sheet0.webp", "images/mp_pause-sheet0.webp",
-        "images/dungeon_title-sheet0.webp",
-    }
     if removed:
         failures.append(("removed files", removed[:10]))
     if len(added) != 24 or any(not n.startswith("images/cnfont_") for n in added):
         failures.append(("unexpected added files", added[:30]))
-    if set(changed) != expected_changed:
+    if set(changed) != EXPECTED_CHANGED:
         failures.append(("unexpected changed files", changed))
+
+    manifest_path = os.path.join(ROOT, "dist", MANIFEST_NAME)
+    if not os.path.isfile(manifest_path):
+        failures.append((MANIFEST_NAME, "missing inventory"))
+    else:
+        with open(manifest_path, encoding="utf-8") as f:
+            inventory = json.load(f)
+        if inventory != create_manifest(VANILLA, BUNDLE):
+            failures.append((MANIFEST_NAME, "does not match bundle contents"))
+        print("替换资源清单:", len(inventory["modified"]), "修改 /",
+              len(inventory["added"]), "新增 /", len(inventory["removed"]), "删除")
 
     if failures:
         print("校验失败:", failures[:10], "count", len(failures))

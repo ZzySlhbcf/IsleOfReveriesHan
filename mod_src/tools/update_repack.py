@@ -43,6 +43,29 @@ PATCH_IMAGE_PREFIX = "images/cnfont_"
 PATCH_JS_MARKER = "\u7b80\u4f53\u4e2d\u6587\u8865\u4e01"   # 简体中文补丁
 
 
+def check_art_inputs(bundle):
+    """An atlas update may move baked text; do not install blindly."""
+    from resource_manifest import MANIFEST_NAME, changed_original_images
+
+    inventory_path = os.path.join(os.path.dirname(ROOT), MANIFEST_NAME)
+    if not os.path.isfile(inventory_path):
+        sys.exit(f"[失败] 找不到 {inventory_path}，无法确认旧版贴图坐标；"
+                 "请先生成替换资源清单，或请维护者手动检查后重建。")
+    with open(inventory_path, encoding="utf-8") as f:
+        inventory = json.load(f)
+    try:
+        changed = changed_original_images(inventory, bundle)
+    except (KeyError, TypeError, ValueError) as exc:
+        sys.exit(f"[失败] 资源清单无效：{exc}；请维护者核对后重建。")
+    if changed:
+        print("[停止] 官方更新改动了以下汉化贴图的英文原图：")
+        for name in changed:
+            print("  ", name)
+        sys.exit("原图文字位置可能变化，自动重绘会误盖美术。请按清单逐帧复核后重建；"
+                 "游戏文件与备份均未改动。")
+    print(f"  已对照替换资源清单：{len(inventory['modified']) - 2} 张英文原图均未改变，可自动重建。")
+
+
 def md5(path):
     return hashlib.md5(open(path, "rb").read()).hexdigest()
 
@@ -144,6 +167,7 @@ def main():
         print("       想现在就强制重建，请先用 Steam「验证文件完整性」还原英文版。）")
         return 0
     else:
+        check_art_inputs(bundle)
         if os.path.exists(bak):
             arch = f"{bak}.{datetime.datetime.now():%Y%m%d-%H%M%S}"
             shutil.copy(bak, arch)
@@ -204,7 +228,24 @@ def main():
         print("（--no-install：未安装，可自行运行 dist\\安装.bat）")
         return
     shutil.copy(dist_bundle, bundle)
-    print(f"已安装到游戏: {bundle}  一致校验: {md5(dist_bundle) == md5(bundle)}")
+    if md5(dist_bundle) != md5(bundle):
+        sys.exit("[失败] 安装后的资源包 MD5 不一致；请关闭游戏并重新安装。")
+    print(f"已安装到游戏: {bundle}  一致校验: True")
+
+    # Keep the distributable in sync.  In particular, the uninstaller needs
+    # the new original/patch hashes after every official game update.
+    delivery = os.path.dirname(ROOT)
+    try:
+        os.makedirs(os.path.join(delivery, "www"), exist_ok=True)
+        shutil.copy2(dist_bundle, os.path.join(delivery, "www", "assets.dat"))
+        for filename in ("安装.bat", "卸载.bat", "版本.txt", "说明.txt",
+                         "官方更新后重建.bat", "替换资源清单.json"):
+            shutil.copy2(os.path.join(work, "dist", filename),
+                         os.path.join(delivery, filename))
+        print(f"交付目录已同步（含新版卸载器和资源清单）: {delivery}")
+    except OSError as exc:
+        print(f"[警告] 游戏已安装汉化，但无法同步交付目录：{exc}")
+        print(f"        新版文件仍在 {os.path.join(work, 'dist')}")
     d = json.load(open(os.path.join(work, "trans", "dict.json"), encoding="utf-8"))
     print(f"词典 {len(d)} 条；官方新增/改写的英文句子会自动回退为英文，"
           f"需要补译时把它们加进 trans/dict.json 后重跑本脚本即可。")

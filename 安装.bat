@@ -23,7 +23,7 @@ if not exist "%GAME%\www\assets.dat" (
 
 set "TARGET=%GAME%\www\assets.dat"
 set "CURMD5="
-for /f "delims=" %%H in ('powershell -NoProfile -Command "(Get-FileHash -LiteralPath $env:TARGET -Algorithm MD5).Hash.ToLowerInvariant()"') do set "CURMD5=%%H"
+for /f "delims=" %%H in ('powershell -NoProfile -Command "([BitConverter]::ToString([Security.Cryptography.MD5]::Create().ComputeHash([IO.File]::ReadAllBytes($env:TARGET)))).Replace([string][char]45,[string]::Empty).ToLowerInvariant()"') do set "CURMD5=%%H"
 if not defined CURMD5 (
   echo [错误] 无法读取当前游戏资源包的 MD5，安装已取消。
   pause
