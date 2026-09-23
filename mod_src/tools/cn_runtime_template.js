@@ -49,6 +49,18 @@
 			hit = lookup(mx[1]);
 			if (hit !== undefined) return hit + ' x ' + mx[2];
 		}
+		// 游戏运行时拼接的数量句。这里只匹配已确认会显示给玩家的完整格式，
+		// 避免误改 Destroy_、Num_ 等内部动画/状态标识。
+		var dyn = s.match(/^Currently built: ([0-9]+)(\/1)?$/);
+		if (dyn) return '当前已建：' + dyn[1] + (dyn[2] || '');
+		dyn = s.match(/^Hrrmm\.\.\. You have found ([0-9]+) of the 16 bugs scattered across the Isle\.$/);
+		if (dyn) return '嗯……散落全岛的16只虫子，你已经找到了' + dyn[1] + '只。';
+		dyn = s.match(/^You have ([0-9]+) Leaves\. Come back when you've found ([0-9]+)!$/);
+		if (dyn) return '你现在有' + dyn[1] + '片叶子。找到' + dyn[2] + '片后再来！';
+		dyn = s.match(/^Lief has ([0-9]+) Goddess Seeds?\.$/);
+		if (dyn) return '利夫拥有' + dyn[1] + '颗女神种子。';
+		dyn = s.match(/^Lief has ([0-9]+) Akedo (?:Leaf|Leaves)\.$/);
+		if (dyn) return '利夫拥有' + dyn[1] + '片阿凯多之叶。';
 		// 拼接串："BACK: B" / "TOGGLE ALL: X" / "AREA: 3/8" —— 只翻冒号前面的标签
 		var m = s.match(/^([^:]{2,40}):\s*(.+)$/);
 		if (m) {

@@ -92,6 +92,24 @@ def translator(dictionary):
             hit = lookup(amount.group(1))
             if hit is not None:
                 return hit + " x " + amount.group(2)
+        dynamic = re.match(r"^Currently built: ([0-9]+)(/1)?$", text)
+        if dynamic:
+            return "当前已建：" + dynamic.group(1) + (dynamic.group(2) or "")
+        dynamic = re.match(
+            r"^Hrrmm\.\.\. You have found ([0-9]+) of the 16 bugs scattered across the Isle\.$",
+            text)
+        if dynamic:
+            return f"嗯……散落全岛的16只虫子，你已经找到了{dynamic.group(1)}只。"
+        dynamic = re.match(
+            r"^You have ([0-9]+) Leaves\. Come back when you've found ([0-9]+)!$", text)
+        if dynamic:
+            return f"你现在有{dynamic.group(1)}片叶子。找到{dynamic.group(2)}片后再来！"
+        dynamic = re.match(r"^Lief has ([0-9]+) Goddess Seeds?\.$", text)
+        if dynamic:
+            return f"利夫拥有{dynamic.group(1)}颗女神种子。"
+        dynamic = re.match(r"^Lief has ([0-9]+) Akedo (?:Leaf|Leaves)\.$", text)
+        if dynamic:
+            return f"利夫拥有{dynamic.group(1)}片阿凯多之叶。"
         label = re.match(r"^([^:]{2,40}):\s*(.+)$", text)
         if label:
             for candidate in (label.group(1), label.group(1).strip()):

@@ -191,9 +191,25 @@ def main(use_stub=False):
     print("cn charset length:", len(cn_chars))
 
     # --- 1) clean dev tree ----------------------------------------------
+    vanilla_entries, _, _ = read_directory(VANILLA_BUNDLE)
+    vanilla_order = [entry["name"] for entry in vanilla_entries]
+    vanilla_names = set(vanilla_order)
     if os.path.isdir(DEV):
         shutil.rmtree(DEV)
     shutil.copytree(EXTRACTED, DEV)
+    # extracted/ may also contain screenshots or audit reports made during
+    # development.  Keep only paths present in the vanilla bundle before the
+    # patch adds its own cnfont images, so local artifacts cannot ship.
+    removed_artifacts = []
+    for dirpath, _dirnames, filenames in os.walk(DEV):
+        for filename in filenames:
+            full = os.path.join(dirpath, filename)
+            rel = os.path.relpath(full, DEV).replace(os.sep, "/")
+            if rel not in vanilla_names:
+                os.remove(full)
+                removed_artifacts.append(rel)
+    if removed_artifacts:
+        print("忽略非原版解包文件:", sorted(removed_artifacts))
 
     data_path = os.path.join(DEV, "data.json")
     project = json.load(open(data_path, encoding="utf-8"))["project"]
@@ -316,11 +332,9 @@ def main(use_stub=False):
     print("c3runtime.js:", os.path.getsize(rt))
 
     # --- 7) repack ---------------------------------------------------------
-    ents, _, _ = read_directory(VANILLA_BUNDLE)
-    order = [e["name"] for e in ents]
-    json.dump(order, open(ORDER_JSON, "w", encoding="utf-8"))
+    json.dump(vanilla_order, open(ORDER_JSON, "w", encoding="utf-8"))
     os.makedirs(os.path.join(DIST, "www"), exist_ok=True)
-    n, dsz, bsz = pack(DEV, os.path.join(DIST, "www", "assets.dat"), order=order)
+    n, dsz, bsz = pack(DEV, os.path.join(DIST, "www", "assets.dat"), order=vanilla_order)
     print(f"packed {n} files -> dist/www/assets.dat "
           f"({os.path.getsize(os.path.join(DIST, 'www', 'assets.dat'))} bytes)")
 
