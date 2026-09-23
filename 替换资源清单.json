@@ -6,8 +6,8 @@
     "md5": "e7ce2ff29ce2dfcbcbf7bf232ef2e97c"
   },
   "patch_bundle": {
-    "size": 73284979,
-    "md5": "57c99a77e9c7028aaab090d463029df6"
+    "size": 73261342,
+    "md5": "c756fa27302536c9323def7b3125623b"
   },
   "modified": [
     {
@@ -18,8 +18,8 @@
         "sha256": "ca78a807c03e173333b5e3effd0f43635cf28c0739dab07104f672b3717c4336"
       },
       "localized": {
-        "size": 27481286,
-        "sha256": "4d084daccf98bdac442e3853314b7ebd7420053d8f96b602f3c7fba250ca10d2"
+        "size": 27481223,
+        "sha256": "f90a4fb52cb539371e1d720171d57694ecc3c2d55925632537c009f53c41213c"
       }
     },
     {
@@ -131,6 +131,18 @@
       }
     },
     {
+      "path": "images/maps_sprite-sheet0.webp",
+      "purpose": "世界地图详情标题及操作提示",
+      "original": {
+        "size": 13740,
+        "sha256": "bf5e918b807db327239e47af758d496e009acf240e6c7bbfb0ca36d45cfe6ea2"
+      },
+      "localized": {
+        "size": 9420,
+        "sha256": "8845db740f023b2a0b1b9e7955c41a22c0178cb2c0551987f524a1f95f16aab9"
+      }
+    },
+    {
       "path": "images/mp_pause-sheet0.webp",
       "purpose": "多人暂停选项",
       "original": {
@@ -143,6 +155,18 @@
       }
     },
     {
+      "path": "images/settingsbg-sheet0.webp",
+      "purpose": "游戏设置页面标签",
+      "original": {
+        "size": 1212,
+        "sha256": "f4ec07c3669a4671fa25a65bfc50d5ecb810f6557db279cd964f537322f6c495"
+      },
+      "localized": {
+        "size": 610,
+        "sha256": "f18912f42824e49a190c47b95010d7363ea5085a94caa93cb98af63534ef7c6e"
+      }
+    },
+    {
       "path": "images/shared-1-sheet0.webp",
       "purpose": "移动控制提示",
       "original": {
@@ -152,6 +176,30 @@
       "localized": {
         "size": 6002,
         "sha256": "af8492f13d0e345a68df6f5a706535baaea111d29a8a4de46b92daa601a6ebe2"
+      }
+    },
+    {
+      "path": "images/shared-3-sheet0.webp",
+      "purpose": "标题菜单设置面板",
+      "original": {
+        "size": 25142,
+        "sha256": "ca168b82ab28be9426380a1429090c52e6bb702de1b0e82413deee1af597f59b"
+      },
+      "localized": {
+        "size": 7490,
+        "sha256": "001e185e6bfbc1717d4cdf7795ff7ea6297af5a8db59e74e7a4ad453e10055e2"
+      }
+    },
+    {
+      "path": "images/shared-3-sheet1.webp",
+      "purpose": "标题菜单设置操作提示",
+      "original": {
+        "size": 3302,
+        "sha256": "6e339a84274eb7c1281908f12814a8f3b43e098106ba168a624e9022c682401c"
+      },
+      "localized": {
+        "size": 2296,
+        "sha256": "7cef517a6d1799f657d70a7147b763c7fa98f0d383f2922b52c9ed0f9299445e"
       }
     },
     {
@@ -198,8 +246,8 @@
         "sha256": "2c59d19090e1f6e7d0c2b6d4f0d5f7008c2ff3c75c9f73186949a6eb394152c3"
       },
       "localized": {
-        "size": 730,
-        "sha256": "70baeca8bd0569fe47b79b3be0f2c2b8b91f92fa137f0f678614457c1ebaa99c"
+        "size": 732,
+        "sha256": "8c4847fe78e813f0577839e7391e54582171de06baee249b50a1f14289e1d8b3"
       }
     },
     {
@@ -222,8 +270,8 @@
         "sha256": "127f13972550f41e4cbff5ce44866272908b1ce9a7761002b78df8ce83fbec16"
       },
       "localized": {
-        "size": 1144,
-        "sha256": "6ca93a99958defa3be06ba8c9d5a8f8b6ff8cbe2874ac6416564b5d41876b404"
+        "size": 1148,
+        "sha256": "d13a6a702b3096cf1124ebe4e0e2a9fded95e8ca917e0ed9a154e209ae7574cb"
       }
     },
     {
