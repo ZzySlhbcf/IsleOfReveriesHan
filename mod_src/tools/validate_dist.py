@@ -121,6 +121,12 @@ def main():
         "images/warpmenubg-sheet0.webp", "images/warpmenu_hiddentext-sheet0.webp",
         "images/buildmenubg-sheet0.webp", "images/buildmenu_pages-sheet0.webp",
         "images/buildmenu_pages-sheet1.webp", "images/shared-4-sheet1.webp",
+        "images/worldmapbg-sheet0.webp", "images/controlsbg-sheet0.webp",
+        "images/shared-1-sheet0.webp", "images/fileselect_cursor-sheet0.webp",
+        "images/shared-9-sheet6.webp", "images/displaybugmenubg-sheet0.webp",
+        "images/trinketmenubg-sheet0.webp", "images/fashionmenubg-sheet0.webp",
+        "images/album_inputprompt-sheet0.webp", "images/mp_pause-sheet0.webp",
+        "images/dungeon_title-sheet0.webp",
     }
     if removed:
         failures.append(("removed files", removed[:10]))

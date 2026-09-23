@@ -29,19 +29,7 @@ DYNAMIC_SENTENCE = re.compile(
 # This is deliberately curated: animation/state names are not automatically
 # classified as text, because translating an internal identifier breaks logic.
 BAKED_PENDING = {
-    "WorldMapBG": "世界地图区域名和 EXPAND",
-    "ControlsBG": "CONTROLS、MOVE、ACTION、INTERACT、MENU 等",
-    "ControlsMenu_Move": "Left Stick/D-Pad、WASD/ARROWS",
-    "FileSelect_Cursor": "LOAD、NEW、BACK",
-    "Confirm_Load": "CONFIRM、YES、NO",
-    "BuildMenu_BuildPrompt": "BACK、BUILD、DESTROY",
-    "DisplayBugMenuBG": "BUGS 页签",
-    "TrinketMenuBG": "TRINKETS 页签",
-    "FashionMenuBG": "GREEN/BLUE/RED/PURPLE/CANCEL",
-    "Album_InputPrompt": "相册的 Back/Select 操作提示",
-    "Dungeon_Title": "六个地牢开场标题",
     "TitleScreenBG": "游戏 Logo（美术字）",
-    "MP_Pause": "CONTINUE、WAKE UP",
 }
 
 

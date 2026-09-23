@@ -1,4 +1,4 @@
-"""Repaint text baked into the warp/build sprite atlases, retaining frame geometry.
+"""Repaint player-facing text baked into sprite atlases.
 
 The Construct 3 SpriteFont hook cannot reach these labels: they are pixels in
 rotated atlas frames.  Work exclusively from the extracted vanilla art so a
@@ -15,6 +15,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FONT = os.path.join(ROOT, "fonts", "fusion-pixel-8px-monospaced-zh_hans.bdf")
 INK = (7, 24, 33, 255)
 PAPER = (219, 207, 181, 255)
+PALE_PAPER = (235, 223, 193, 255)
+SHADOW = (120, 111, 120, 255)
 
 WARP_NAMES = {
     "1": "翠绿山谷", "2": "暮色丛林", "3": "垂泪湿地", "4": "雪披峰",
@@ -26,9 +28,17 @@ BUILD_NAMES = (
 )
 HIDDEN_NAMES = {"CatStatue": "猫雕像", "PhotoHut": "照相小屋",
                 "DreamersHut": "梦者小屋", "Windmill1": "风车", "Windmill2": "风车"}
+WORLD_MAP_NAMES = {
+    "1": "雪披峰", "2": "忧郁草原", "3": "灼风沙地", "4": "泥痕台地",
+    "5": "上城", "6": "垂泪湿地", "7": "翠绿山谷", "8": "暮色丛林",
+}
+DUNGEON_NAMES = {
+    "1": "朝圣者圣殿", "2": "蔓生神龛", "3": "巨龙遗骸",
+    "4": "时间锁定别墅", "5": "雪覆矿场", "6": "岛屿深处",
+}
 
 
-def draw_text(image, font, text, x, y, width):
+def draw_text(image, font, text, x, y, width, ink=INK):
     """Draw one 8px row from the same BDF used for the game's small glyphs."""
     if len(text) * 8 > width:
         raise ValueError(f"text exceeds frame width: {text!r}")
@@ -42,7 +52,7 @@ def draw_text(image, font, text, x, y, width):
         for gx, gy in pts:
             px, py = x + col * 8 + gx - min_x, y + 5 - gy
             if x <= px < x + width and y <= py < y + 8:
-                pixels[px, py] = INK
+                pixels[px, py] = ink
 
 
 def repaint(project, extracted, dev):
@@ -50,29 +60,49 @@ def repaint(project, extracted, dev):
     types = {ot[0]: ot for ot in project[3] if isinstance(ot, list) and ot}
     atlases = {}
 
+    def image(name):
+        if name not in atlases:
+            atlases[name] = Image.open(os.path.join(extracted, name)).convert("RGBA")
+        return atlases[name]
+
+    def direct(type_name):
+        spec = types[type_name][6]
+        if not spec or spec[6] or not spec[0].startswith("images/"):
+            raise ValueError(f"unexpected direct image geometry: {type_name}")
+        return image(spec[0])
+
     def frame(type_name, animation, edit):
         anim = next(a for a in types[type_name][7] if a[0] == animation)
         spec = anim[7][0]
         name, _size, x, y, w, h, rotated = spec[:7]
-        if not rotated or not name.startswith("images/"):
+        if not name.startswith("images/"):
             raise ValueError(f"unexpected atlas geometry: {type_name}/{animation}")
-        if name not in atlases:
-            atlases[name] = Image.open(os.path.join(extracted, name)).convert("RGBA")
-        atlas = atlases[name]
-        original = atlas.crop((x, y, x + h, y + w)).transpose(Image.Transpose.ROTATE_90)
+        atlas = image(name)
+        crop_w, crop_h = (h, w) if rotated else (w, h)
+        original = atlas.crop((x, y, x + crop_w, y + crop_h))
+        if rotated:
+            original = original.transpose(Image.Transpose.ROTATE_90)
         if original.size != (w, h):
             raise ValueError(f"wrong frame size for {type_name}/{animation}")
         edit(original)
-        atlas.paste(original.transpose(Image.Transpose.ROTATE_270), (x, y))
+        if rotated:
+            original = original.transpose(Image.Transpose.ROTATE_270)
+        atlas.paste(original, (x, y))
 
-    def label(text, area, align="left", paper=PAPER):
+    def label(text, area, align="left", paper=PAPER, ink=INK):
         def edit(img):
             x, y, w, h = area
             if h not in (7, 8) or x + w > img.width or y + h > img.height:
                 raise ValueError(f"bad text rectangle: {area}")
             img.paste(paper, (x, y, x + w, y + h))
             start = x + (w - len(text) * 8) // 2 if align == "center" else x
-            draw_text(img, font, text, start, y, x + w - start)
+            draw_text(img, font, text, start, y, x + w - start, ink=ink)
+        return edit
+
+    def labels(*items):
+        def edit(img):
+            for text, area, align, paper, ink in items:
+                label(text, area, align=align, paper=paper, ink=ink)(img)
         return edit
 
     # Both headers are pixels in the menu backgrounds.  Only the letter cells
@@ -80,9 +110,7 @@ def repaint(project, extracted, dev):
     for obj, text in (("WarpMenuBG", "传送"), ("BuildMenuBG", "建造")):
         spec = types[obj][6]
         name = spec[0]
-        if name not in atlases:
-            atlases[name] = Image.open(os.path.join(extracted, name)).convert("RGBA")
-        label(text, (115, 2, 27, 7), align="center")(atlases[name])
+        label(text, (115, 2, 27, 7), align="center")(image(name))
     label("返回", (72, 119, 29, 8), align="center")(
         atlases[types["WarpMenuBG"][6][0]])
 
@@ -116,6 +144,100 @@ def repaint(project, extracted, dev):
             draw_text(img, font, text, 0, 0, 8 * len(text))
         frame("BuildMenu_HiddenText", anim, edit_hidden)
 
+    # World map region names and the expand action.  Animation 0 is the
+    # deliberately hidden "???" region and must remain hidden.
+    for anim, text in WORLD_MAP_NAMES.items():
+        frame("WorldMapBG", anim, labels(
+            (text, (8, 0, 144, 8), "center", PAPER, INK),
+            ("展开", (48, 136, 64, 8), "center", PAPER, INK),
+        ))
+
+    # Controls screen: input glyphs (WASD, arrows and controller buttons) are
+    # controls rather than prose, so retain them while translating labels.
+    controls = direct("ControlsBG")
+    for text, area, align in (
+        ("控制", (106, 2, 44, 8), "center"),
+        ("移动", (64, 16, 32, 8), "left"),
+        ("按键重新绑定", (56, 32, 144, 8), "center"),
+        ("操作", (56, 44, 48, 8), "center"),
+        ("控制器", (120, 44, 40, 8), "left"),
+        ("E键", (168, 44, 32, 8), "left"),
+        ("互动", (64, 56, 48, 8), "left"),
+        ("菜单", (64, 64, 48, 8), "left"),
+        ("地图", (64, 72, 48, 8), "left"),
+        ("工具1", (64, 80, 48, 8), "left"),
+        ("工具2", (64, 88, 48, 8), "left"),
+        ("工具3", (64, 96, 48, 8), "left"),
+        ("跳跃", (64, 104, 48, 8), "left"),
+        ("精灵", (64, 112, 48, 8), "left"),
+        ("确认", (64, 128, 48, 8), "left"),
+        ("重置", (168, 128, 32, 8), "left"),
+    ):
+        label(text, area, align=align)(controls)
+    frame("ControlsMenu_Move", "Gamepad",
+          label("左摇杆/十字键", (0, 8, 80, 8), align="center"))
+    for anim in ("Keyboard_WASD", "Keyboard_Arrows"):
+        frame("ControlsMenu_Move", anim,
+              label("方向键", (43, 8, 37, 8), align="center"))
+
+    # Save selection uses a dark one-pixel foreground over a grey shadow.
+    for anim, text in (("LoadGame", "读取"), ("NewGame", "新建"), ("Back", "返回")):
+        def edit_file_label(img, text=text):
+            img.paste((0, 0, 0, 0), (0, 0, img.width, img.height))
+            x = (img.width - len(text) * 8) // 2
+            draw_text(img, font, text, x - 1, 3, img.width - x + 1, ink=SHADOW)
+            draw_text(img, font, text, x, 4, img.width - x, ink=INK)
+        frame("FileSelect_Cursor", anim, edit_file_label)
+
+    # Confirmation window: preserve the A/B, Space/Z input glyphs and frame.
+    for anim in ("GamePad", "Keyboard"):
+        frame("Confirm_Load", anim, labels(
+            ("确认", (52, 56, 56, 8), "center", PALE_PAPER, INK),
+            ("是", (72, 66, 32, 8), "left", PALE_PAPER, INK),
+            ("否", (72, 76, 32, 8), "left", PALE_PAPER, INK),
+        ))
+
+    # Build bar states use the same geometry, with BUILD greyed out in NoBuild.
+    for anim in ("YesBuild", "NoBuild", "DetailsClosed", "Destroy"):
+        frame("BuildMenu_BuildPrompt", anim,
+              label("返回", (0, 8, 40, 8), align="center"))
+    frame("BuildMenu_BuildPrompt", "YesBuild",
+          label("建造", (56, 8, 40, 8), align="center"))
+    frame("BuildMenu_BuildPrompt", "NoBuild",
+          label("建造", (56, 8, 40, 8), align="center", ink=SHADOW))
+    frame("BuildMenu_BuildPrompt", "Destroy",
+          label("拆除", (56, 8, 56, 8), align="center"))
+
+    # Inventory tabs and compact menu panels.
+    label("虫子", (108, 2, 32, 8), align="center")(direct("DisplayBugMenuBG"))
+    label("饰品", (104, 2, 48, 8), align="center")(direct("TrinketMenuBG"))
+    fashion = direct("FashionMenuBG")
+    for text, y in (("绿色", 48), ("蓝色", 56), ("红色", 64),
+                    ("紫色", 72), ("取消", 88)):
+        label(text, (104, y, 48, 8))(fashion)
+
+    # Album prompts retain the purple keycap glyphs and only replace verbs.
+    for anim in ("Arrows_Keyboard-OLD", "Arrows_Gamepad-OLD"):
+        frame("Album_InputPrompt", anim, labels(
+            ("选择", (34, 8, 24, 8), "center", PAPER, INK),
+            ("返回", (90, 8, 22, 8), "center", PAPER, INK),
+        ))
+    for anim in ("Photos_Keyboard-OLD", "Photos_Gamepad-OLD", "Photos_Gamepad",
+                 "Photos_Keyboard", "Arrows_Gamepad", "Arrows_Keyboard"):
+        frame("Album_InputPrompt", anim,
+              label("返回", (40, 8, 32, 8), align="left"))
+
+    pause = direct("MP_Pause")
+    label("继续", (104, 64, 48, 8), align="left")(pause)
+    label("醒来", (104, 72, 48, 8), align="left")(pause)
+
+    # The six dungeon splash cards have a dedicated 28px caption panel.
+    for anim, text in DUNGEON_NAMES.items():
+        frame("Dungeon_Title", anim, labels(
+            (f"第{anim}层", (4, 96, 120, 8), "center", PAPER, INK),
+            (text, (4, 104, 120, 8), "center", PAPER, INK),
+        ))
+
     sizes = {}
     for name, atlas in atlases.items():
         out = os.path.join(dev, name)
@@ -136,5 +258,6 @@ def repaint(project, extracted, dev):
                 update_sizes(child)
 
     update_sizes(project)
-    print("重绘菜单图片:", sorted(sizes), "(传送目的地 8、建筑清单 9、解锁名称 5)")
+    print("重绘菜单图片:", sorted(sizes),
+          "(传送、建造、地图、控制、存档、页签、相册、暂停、地牢标题)")
     return set(sizes)
