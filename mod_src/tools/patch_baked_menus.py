@@ -17,6 +17,7 @@ INK = (7, 24, 33, 255)
 PAPER = (219, 207, 181, 255)
 PALE_PAPER = (235, 223, 193, 255)
 SHADOW = (120, 111, 120, 255)
+OPTION_PAPER = (200, 183, 141, 255)
 
 WARP_NAMES = {
     "1": "翠绿山谷", "2": "暮色丛林", "3": "垂泪湿地", "4": "雪披峰",
@@ -123,7 +124,9 @@ def repaint(project, extracted, dev):
             if not occupied or min(occupied) != 72:
                 raise ValueError("unexpected warp label alignment")
             img.paste((0, 0, 0, 0), (72, 0, max(occupied) + 1, 8))
-            img.paste(PAPER, (72, 0, 72 + len(text) * 8, 8))
+            # Hidden "???" remains visible behind short destinations like 上城
+            # unless the opaque label strip covers all three question marks.
+            img.paste(PAPER, (72, 0, 72 + max(24, len(text) * 8), 8))
             draw_text(img, font, text, 72, 0, 8 * len(text))
         frame("WarpMenu_HiddenText", anim, edit_warp)
 
@@ -147,10 +150,71 @@ def repaint(project, extracted, dev):
     # World map region names and the expand action.  Animation 0 is the
     # deliberately hidden "???" region and must remain hidden.
     for anim, text in WORLD_MAP_NAMES.items():
-        frame("WorldMapBG", anim, labels(
-            (text, (8, 0, 144, 8), "center", PAPER, INK),
-            ("展开", (48, 136, 64, 8), "center", PAPER, INK),
+        def edit_world_map(img, name=text):
+            label(name, (8, 0, 144, 8), align="center")(img)
+            # The E binding is a separate SpriteFont at local x=88.
+            # Centering "展开" at x=72 used to leave no gap before E.
+            img.paste(PAPER, (48, 136, 112, 144))
+            draw_text(img, font, "展开", 64, 136, 16)
+        frame("WorldMapBG", anim, edit_world_map)
+
+    settings = direct("SettingsBG")
+    for text, area in (
+        ("设置", (106, 2, 44, 8)),
+        ("画面", (56, 16, 40, 8)),
+        ("全屏", (74, 24, 22, 8)),
+        ("窗口模式", (104, 24, 64, 8)),
+        ("音频", (56, 40, 40, 8)),
+        ("音乐", (100, 52, 32, 8)),
+        ("音效", (100, 68, 32, 8)),
+        ("按键图标", (56, 88, 48, 8)),
+        ("键位", (74, 112, 32, 8)),
+        ("确认", (64, 128, 48, 8)),
+    ):
+        label(text, area, align="center" if text == "设置" else "left")(settings)
+
+    # The title/pause options panel is a second settings screen, distinct
+    # from SettingsBG.  Keep controller glyphs and the option selectors.
+    def edit_options(img):
+        for text, area in (
+            ("画面", (7, 10, 40, 8)),
+            ("全屏", (17, 21, 24, 8)),
+        ("窗口模式", (49, 21, 70, 8)),
+            ("显示", (7, 34, 32, 8)),
+            ("手柄", (17, 45, 50, 8)),
+            ("键盘", (73, 45, 49, 8)),
+            ("音乐", (7, 58, 40, 8)),
+            ("音效", (7, 82, 40, 8)),
+        ):
+            label(text, area, paper=OPTION_PAPER)(img)
+    frame("Options_BG", "Options_BG", edit_options)
+
+    for anim in ("1-4_Keyboard", "1-4_Gamepad", "5-6_Keyboard", "5-6_Gamepad"):
+        frame("Options_InputPrompt", anim, labels(
+            ("选择", (32, 0, 28, 8), "center", PALE_PAPER, INK),
+            ("返回", (88, 0, 24, 8), "center", PALE_PAPER, INK),
         ))
+    for anim in ("Feats_Keyboard", "Feats_Gamepad"):
+        frame("Options_InputPrompt", anim,
+              label("返回", (32, 0, 32, 8), paper=PALE_PAPER))
+
+    # The overview's BACK / TOGGLE ALL and title are pixels in Maps_Sprite,
+    # not SpriteFont strings.  Leave visited-room cells and key indicators
+    # alone; these strips are the existing opaque paper footer and heading.
+    for anim in (f"WorldMap_{i}" for i in range(1, 9)):
+        def edit_map_overview(img):
+            img.paste(PAPER, (0, 136, 128, 144))
+            draw_text(img, font, "返回：", 8, 136, 24)
+            draw_text(img, font, "全部切换：", 56, 136, 40)
+        frame("Maps_Sprite", anim, edit_map_overview)
+
+    def edit_all_map(img):
+        img.paste(PAPER, (0, 136, 128, 144))
+        draw_text(img, font, "返回：", 8, 136, 24)
+        draw_text(img, font, "全部切换：", 56, 136, 40)
+        img.paste(PAPER, (16, 0, 112, 8))
+        draw_text(img, font, "幻想之岛", 44, 0, 40)
+    frame("Maps_Sprite", "WorldMap_All", edit_all_map)
 
     # Controls screen: input glyphs (WASD, arrows and controller buttons) are
     # controls rather than prose, so retain them while translating labels.
@@ -259,5 +323,5 @@ def repaint(project, extracted, dev):
 
     update_sizes(project)
     print("重绘菜单图片:", sorted(sizes),
-          "(传送、建造、地图、控制、存档、页签、相册、暂停、地牢标题)")
+          "(传送、建造、世界地图详情、两套设置页、控制、存档、页签、相册、暂停、地牢标题)")
     return set(sizes)
