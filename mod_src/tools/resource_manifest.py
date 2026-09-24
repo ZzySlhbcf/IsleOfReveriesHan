@@ -22,7 +22,7 @@ IMAGE_LABELS = {
     "images/maps_sprite-sheet0.webp": "世界地图详情标题及操作提示",
     "images/settingsbg-sheet0.webp": "游戏设置页面标签",
     "images/shared-1-sheet0.webp": "移动控制提示",
-    "images/shared-3-sheet0.webp": "标题菜单设置面板",
+    "images/shared-3-sheet0.webp": "标题设置面板及游戏内存档菜单",
     "images/shared-3-sheet1.webp": "标题菜单设置操作提示",
     "images/shared-4-sheet1.webp": "建造操作条",
     "images/shared-9-sheet6.webp": "读取存档确认框",

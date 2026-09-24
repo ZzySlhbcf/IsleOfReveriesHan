@@ -253,6 +253,19 @@ def repaint(project, extracted, dev):
             draw_text(img, font, text, x, 4, img.width - x, ink=INK)
         frame("FileSelect_Cursor", anim, edit_file_label)
 
+    # The in-game save menu is a separate sprite from the file selection
+    # buttons above.  Only animation 1 contains the baked SAVE/TRINKET/BACK
+    # words; animations 2 and 3 are blank states sharing the same border.
+    def edit_save_trinket_back(img):
+        if img.size != (256, 144):
+            raise ValueError(f"unexpected save-menu frame size: {img.size}")
+        # Opaque paper starts at x=86.  Leave the purple selection marker at
+        # x=88..94, the border, and every pixel outside the word cells intact.
+        for y, text in ((60, "保存"), (68, "饰品"), (76, "返回")):
+            img.paste(PAPER, (96, y, 160, y + 8))
+            draw_text(img, font, text, 96, y, 64)
+    frame("SaveTrinketBack", "1", edit_save_trinket_back)
+
     # Confirmation window: preserve the A/B, Space/Z input glyphs and frame.
     for anim in ("GamePad", "Keyboard"):
         frame("Confirm_Load", anim, labels(

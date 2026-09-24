@@ -6,8 +6,8 @@
     "md5": "0ba75e6d85a7707d0759810f6433ed8d"
   },
   "patch_bundle": {
-    "size": 73289281,
-    "md5": "4cdb4d35ce49a5aae7ff5a5df844c830"
+    "size": 73289323,
+    "md5": "84629abab5f8b99b2ebb4060a22ac78f"
   },
   "modified": [
     {
@@ -19,7 +19,7 @@
       },
       "localized": {
         "size": 27505199,
-        "sha256": "d05471e15d43a6c95c9af020eaf130a4a277e0062222a31d0ca5d11603cbc717"
+        "sha256": "c229b9d60096a20041c41f1bd1e1b1db57b45edc42f6d36a0b25a4101e9b9d3c"
       }
     },
     {
@@ -180,14 +180,14 @@
     },
     {
       "path": "images/shared-3-sheet0.webp",
-      "purpose": "标题菜单设置面板",
+      "purpose": "标题设置面板及游戏内存档菜单",
       "original": {
         "size": 25142,
         "sha256": "ca168b82ab28be9426380a1429090c52e6bb702de1b0e82413deee1af597f59b"
       },
       "localized": {
-        "size": 7490,
-        "sha256": "001e185e6bfbc1717d4cdf7795ff7ea6297af5a8db59e74e7a4ad453e10055e2"
+        "size": 7532,
+        "sha256": "405548bd9d1c69b15958009af061589c19fd7349b91150a4a4294dfe7e8b3618"
       }
     },
     {

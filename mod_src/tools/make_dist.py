@@ -46,6 +46,7 @@ set "PATCHVER={ver}"
 set "BASEMD5={base_md5}"
 set "PATCHMD5={patch_md5}"
 set "PREVMD5={prev_md5}"
+set "PREVMD5_OLDER={prev_md5_older}"
 
 if not exist "%GAME%\Isle_of_Reveries.exe" (
   echo [错误] 没有找到游戏目录: %GAME%
@@ -71,6 +72,7 @@ if not defined CURMD5 (
 
 if /I "%CURMD5%"=="%PATCHMD5%" goto writepatch
 if defined PREVMD5 if /I "%CURMD5%"=="%PREVMD5%" goto upgrade
+if defined PREVMD5_OLDER if /I "%CURMD5%"=="%PREVMD5_OLDER%" goto upgrade
 if /I not "%CURMD5%"=="%BASEMD5%" (
   echo [错误] 当前游戏资源版本与本补丁不匹配，安装已取消。
   echo         这通常表示游戏刚刚更新；请运行 官方更新后重建.bat，
@@ -264,8 +266,8 @@ Steam 更新会整体覆盖 www\assets.dat，补丁会被冲掉（游戏回到�
   字格 11x11、字距 1px 生效；
 * 安装/卸载/官方更新后重建三个脚本均在测试副本上实测通过；
 * 补丁只改 www\assets.dat 一个文件，不改动 exe、存档与 Steam 配置；
-* 弹琴传送、建造、世界地图及地图详情、两套设置页面、控制设置、存档选择、图鉴/外观、相册、多人暂停和
-  六个地牢开场标题中原本烘焙在图片里的文字均已重绘为中文；
+* 弹琴传送、建造、世界地图及地图详情、两套设置页面、控制设置、存档选择、游戏内存档菜单、
+  图鉴/外观、相册、多人暂停和六个地牢开场标题中原本烘焙在图片里的文字均已重绘为中文；
   * 13 种运行时动态拼接的数量/进度句型已通过受限模板汉化。
 * 替换资源清单记录资源包内每项变化的原版/汉化 SHA-256；更新后若原图
   发生变化，自动重建会先停止，防止旧贴图坐标误盖新版美术。
@@ -313,10 +315,13 @@ def main():
     patch_md5 = hashlib.md5(open(bundle, "rb").read()).hexdigest()
     # Keep this release's upgrade path if make_dist runs again after the
     # delivery manifest has already been replaced with the current version.
-    same_base_predecessor = {
-        "0ba75e6d85a7707d0759810f6433ed8d": "d621e2f0f43033558faf93b4185c6b7e",
+    same_base_predecessors = {
+        "0ba75e6d85a7707d0759810f6433ed8d": (
+            "4cdb4d35ce49a5aae7ff5a5df844c830",  # 嘶音修订版
+            "d621e2f0f43033558faf93b4185c6b7e",  # 9 月 24 日初版
+        ),
     }
-    prev_md5 = same_base_predecessor.get(base_md5, "")
+    prev_md5, prev_md5_older = same_base_predecessors.get(base_md5, ("", ""))
     previous_manifest = os.path.join(os.path.dirname(ROOT), MANIFEST_NAME)
     if os.path.isfile(previous_manifest):
         with open(previous_manifest, encoding="utf-8") as old_file:
@@ -325,7 +330,9 @@ def main():
             candidate = old_inventory.get("patch_bundle", {}).get("md5", "")
             if (len(candidate) == 32 and all(c in "0123456789abcdef" for c in candidate)
                     and candidate != patch_md5):
-                prev_md5 = candidate
+                if candidate not in (prev_md5, prev_md5_older):
+                    prev_md5_older = prev_md5
+                    prev_md5 = candidate
     inventory = write_manifest(vanilla, bundle, os.path.join(DIST, MANIFEST_NAME))
     print(MANIFEST_NAME, "替换", len(inventory["modified"]),
           "新增", len(inventory["added"]), "删除", len(inventory["removed"]))
@@ -333,6 +340,7 @@ def main():
         f.write(INSTALL.replace("{game}", GAME).replace("{ver}", VERSION)
                 .replace("{base_md5}", base_md5).replace("{patch_md5}", patch_md5)
                 .replace("{prev_md5}", prev_md5)
+                .replace("{prev_md5_older}", prev_md5_older)
                 .replace("{hash_command}", HASH_COMMAND))
     with open(os.path.join(DIST, "卸载.bat"), "w", encoding="gbk", newline="\r\n") as f:
         f.write(UNINSTALL.replace("{game}", GAME)
