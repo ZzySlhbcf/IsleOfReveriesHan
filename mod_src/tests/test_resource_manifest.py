@@ -46,6 +46,42 @@ class ManifestTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             changed_original_images(modified, self.vanilla)
 
+    def test_dungeon_numbers_are_centered_with_chinese(self):
+        """All six splash captions place narrow digits in the middle of a cell."""
+        entries, _, start = read_directory(self.patched)
+        with open(self.patched, "rb") as fh:
+            spec = next(e for e in entries if e["name"] == "data.json")
+            fh.seek(start + spec["offset"])
+            project = json.loads(fh.read(spec["size"]))["project"]
+            sprite = next(o for o in project[3] if isinstance(o, list)
+                          and o[0] == "Dungeon_Title")
+            frames = {a[0]: a[7][0][:7] for a in sprite[7]}
+            specs = {e["name"]: e for e in entries}
+            with open(self.patched, "rb") as fh:
+                # The same atlas is reused for all six animations.
+                atlas_name = frames["1"][0]
+                atlas_entry = specs[atlas_name]
+                fh.seek(start + atlas_entry["offset"])
+                atlas = Image.open(io.BytesIO(fh.read(atlas_entry["size"]))).convert("RGBA")
+            for number in range(1, 7):
+                _name, _size, x, y, w, h, rotated = frames[str(number)]
+                piece = atlas.crop((x, y, x + (h if rotated else w),
+                                    y + (w if rotated else h)))
+                if rotated:
+                    piece = piece.transpose(Image.Transpose.ROTATE_90)
+                # "第N层" is centered over a 120px panel; three 8px cells.
+                start_x = 4 + (120 - 24) // 2
+                centers_twice = []
+                for col in range(3):
+                    cell = piece.crop((start_x + col * 8, 96,
+                                       start_x + (col + 1) * 8, 104))
+                    ink_x = [cx for cy in range(8) for cx in range(8)
+                             if cell.getpixel((cx, cy)) == (7, 24, 33, 255)]
+                    self.assertTrue(ink_x, f"empty dungeon {number} title cell {col}")
+                    centers_twice.append(min(ink_x) + max(ink_x))
+                self.assertEqual(centers_twice, [6, 6, 6],
+                                 f"dungeon {number} digit is off-center")
+
     def test_save_menu_translates_only_label_pixels(self):
         """The in-game save screen must not be confused with file selection."""
         def frames(bundle):

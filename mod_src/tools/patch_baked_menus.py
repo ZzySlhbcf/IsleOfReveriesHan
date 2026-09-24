@@ -50,8 +50,12 @@ def draw_text(image, font, text, x, y, width, ink=INK):
             raise ValueError(f"missing 8px glyph: {ch}")
         pts = bits[0]
         min_x = min(a for a, _ in pts)
+        glyph_width = max(a for a, _ in pts) - min_x + 1
+        # Narrow ASCII glyphs (digits and key labels) otherwise hug the left
+        # edge of their 8px cells next to full-width Chinese characters.
+        inset = (8 - glyph_width) // 2
         for gx, gy in pts:
-            px, py = x + col * 8 + gx - min_x, y + 5 - gy
+            px, py = x + col * 8 + inset + gx - min_x, y + 5 - gy
             if x <= px < x + width and y <= py < y + 8:
                 pixels[px, py] = ink
 

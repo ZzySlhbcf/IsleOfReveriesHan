@@ -317,8 +317,8 @@ def main():
     # delivery manifest has already been replaced with the current version.
     same_base_predecessors = {
         "0ba75e6d85a7707d0759810f6433ed8d": (
+            "84629abab5f8b99b2ebb4060a22ac78f",  # 存档页面修订版
             "4cdb4d35ce49a5aae7ff5a5df844c830",  # 嘶音修订版
-            "d621e2f0f43033558faf93b4185c6b7e",  # 9 月 24 日初版
         ),
     }
     prev_md5, prev_md5_older = same_base_predecessors.get(base_md5, ("", ""))
