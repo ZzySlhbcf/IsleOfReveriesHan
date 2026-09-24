@@ -4,9 +4,10 @@ setlocal enabledelayedexpansion
 title Isle of Reveries 简体中文补丁 - 安装
 
 set "GAME=D:\Games\Steam\steamapps\common\Isle of Reveries"
-set "PATCHVER=润色版 对白11x11/菜单与说明9x10 (2026-09-24)"
+set "PATCHVER=润色版 对白11x11/菜单与说明9x10 (2026-09-24 嘶音修订)"
 set "BASEMD5=0ba75e6d85a7707d0759810f6433ed8d"
-set "PATCHMD5=d621e2f0f43033558faf93b4185c6b7e"
+set "PATCHMD5=4cdb4d35ce49a5aae7ff5a5df844c830"
+set "PREVMD5=d621e2f0f43033558faf93b4185c6b7e"
 
 if not exist "%GAME%\Isle_of_Reveries.exe" (
   echo [错误] 没有找到游戏目录: %GAME%
@@ -31,6 +32,7 @@ if not defined CURMD5 (
 )
 
 if /I "%CURMD5%"=="%PATCHMD5%" goto writepatch
+if defined PREVMD5 if /I "%CURMD5%"=="%PREVMD5%" goto upgrade
 if /I not "%CURMD5%"=="%BASEMD5%" (
   echo [错误] 当前游戏资源版本与本补丁不匹配，安装已取消。
   echo         这通常表示游戏刚刚更新；请运行 官方更新后重建.bat，
@@ -46,6 +48,24 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
+
+goto writepatch
+
+:upgrade
+if not exist "%GAME%\www\assets.dat.cn-backup" (
+  echo [错误] 找不到英文原版备份，不能从旧版汉化直接升级。
+  pause
+  exit /b 1
+)
+set "TARGET=%GAME%\www\assets.dat.cn-backup"
+set "BAKMD5="
+for /f "delims=" %%H in ('powershell -NoProfile -Command "([BitConverter]::ToString([Security.Cryptography.MD5]::Create().ComputeHash([IO.File]::ReadAllBytes($env:TARGET)))).Replace([string][char]45,[string]::Empty).ToLowerInvariant()"') do set "BAKMD5=%%H"
+if /I not "%BAKMD5%"=="%BASEMD5%" (
+  echo [错误] 英文备份与新版游戏资源不匹配，拒绝覆盖旧版汉化。
+  pause
+  exit /b 1
+)
+echo 已确认旧版汉化与英文备份属于同一游戏版本，保留备份并升级。
 
 :writepatch
 echo 写入汉化资源包 ^(版本: %PATCHVER%^) ...

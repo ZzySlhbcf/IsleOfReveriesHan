@@ -45,6 +45,7 @@ set "GAME={game}"
 set "PATCHVER={ver}"
 set "BASEMD5={base_md5}"
 set "PATCHMD5={patch_md5}"
+set "PREVMD5={prev_md5}"
 
 if not exist "%GAME%\Isle_of_Reveries.exe" (
   echo [错误] 没有找到游戏目录: %GAME%
@@ -69,6 +70,7 @@ if not defined CURMD5 (
 )
 
 if /I "%CURMD5%"=="%PATCHMD5%" goto writepatch
+if defined PREVMD5 if /I "%CURMD5%"=="%PREVMD5%" goto upgrade
 if /I not "%CURMD5%"=="%BASEMD5%" (
   echo [错误] 当前游戏资源版本与本补丁不匹配，安装已取消。
   echo         这通常表示游戏刚刚更新；请运行 官方更新后重建.bat，
@@ -84,6 +86,24 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
+
+goto writepatch
+
+:upgrade
+if not exist "%GAME%\www\assets.dat.cn-backup" (
+  echo [错误] 找不到英文原版备份，不能从旧版汉化直接升级。
+  pause
+  exit /b 1
+)
+set "TARGET=%GAME%\www\assets.dat.cn-backup"
+set "BAKMD5="
+for /f "delims=" %%H in ('{hash_command}') do set "BAKMD5=%%H"
+if /I not "%BAKMD5%"=="%BASEMD5%" (
+  echo [错误] 英文备份与新版游戏资源不匹配，拒绝覆盖旧版汉化。
+  pause
+  exit /b 1
+)
+echo 已确认旧版汉化与英文备份属于同一游戏版本，保留备份并升级。
 
 :writepatch
 echo 写入汉化资源包 ^(版本: %PATCHVER%^) ...
@@ -178,7 +198,8 @@ README = r"""Isle of Reveries 简体中文汉化补丁
 1. 关闭游戏（也可以在 Steam 里先退出）。
 2. 双击 安装.bat
    - 它会先确认游戏资源版本与本补丁匹配；不匹配时会拒绝覆盖
-   - 确认匹配后，把原版 www\assets.dat 备份成 www\assets.dat.cn-backup
+   - 英文原版会备份为 www\assets.dat.cn-backup；同一游戏版本的上一版汉化
+     可在备份校验通过后直接升级，原英文备份保持不变
    - 然后把汉化包写入 www\assets.dat
 3. 启动游戏，即为简体中文。
 
@@ -290,12 +311,28 @@ def main():
         sys.exit(f"[错误] 找不到待发布资源包: {bundle}")
     base_md5 = hashlib.md5(open(vanilla, "rb").read()).hexdigest()
     patch_md5 = hashlib.md5(open(bundle, "rb").read()).hexdigest()
+    # Keep this release's upgrade path if make_dist runs again after the
+    # delivery manifest has already been replaced with the current version.
+    same_base_predecessor = {
+        "0ba75e6d85a7707d0759810f6433ed8d": "d621e2f0f43033558faf93b4185c6b7e",
+    }
+    prev_md5 = same_base_predecessor.get(base_md5, "")
+    previous_manifest = os.path.join(os.path.dirname(ROOT), MANIFEST_NAME)
+    if os.path.isfile(previous_manifest):
+        with open(previous_manifest, encoding="utf-8") as old_file:
+            old_inventory = json.load(old_file)
+        if old_inventory.get("base_bundle", {}).get("md5") == base_md5:
+            candidate = old_inventory.get("patch_bundle", {}).get("md5", "")
+            if (len(candidate) == 32 and all(c in "0123456789abcdef" for c in candidate)
+                    and candidate != patch_md5):
+                prev_md5 = candidate
     inventory = write_manifest(vanilla, bundle, os.path.join(DIST, MANIFEST_NAME))
     print(MANIFEST_NAME, "替换", len(inventory["modified"]),
           "新增", len(inventory["added"]), "删除", len(inventory["removed"]))
     with open(os.path.join(DIST, "安装.bat"), "w", encoding="gbk", newline="\r\n") as f:
         f.write(INSTALL.replace("{game}", GAME).replace("{ver}", VERSION)
                 .replace("{base_md5}", base_md5).replace("{patch_md5}", patch_md5)
+                .replace("{prev_md5}", prev_md5)
                 .replace("{hash_command}", HASH_COMMAND))
     with open(os.path.join(DIST, "卸载.bat"), "w", encoding="gbk", newline="\r\n") as f:
         f.write(UNINSTALL.replace("{game}", GAME)

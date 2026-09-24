@@ -5,7 +5,8 @@
 --------
 1. 关闭游戏（也可以在 Steam 里先退出）。
 2. 双击 安装.bat
-   - 它会先把原版 www\assets.dat 备份成 www\assets.dat.cn-backup
+   - 它会先核对游戏版本，将英文原版 www\assets.dat 备份成 www\assets.dat.cn-backup
+   - 同一游戏版本的上一版汉化可在英文备份校验通过后直接升级
    - 然后把汉化包写入 www\assets.dat
 3. 启动游戏，即为简体中文。
 
