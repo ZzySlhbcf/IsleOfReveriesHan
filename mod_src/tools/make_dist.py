@@ -2,11 +2,13 @@
 """Stage the distributable: install/uninstall scripts + readme."""
 import datetime
 import hashlib
+import json
 import os
 import shutil
 import sys
 
 from resource_manifest import MANIFEST_NAME, write_manifest
+from build_cn_patch import FALLBACK
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIST = os.path.join(ROOT, "dist")
@@ -19,7 +21,13 @@ _BUILD_DAY = os.environ.get("CN_BUILD_DAY") or datetime.date.today().strftime("%
 VERSION = os.environ.get("CN_PATCH_VERSION") or (
     f"润色版 对白11x11/菜单与说明9x10 ({_BUILD_DAY})")
 VERSION_TAG = os.environ.get("CN_PATCH_TAG") or f"cn_patch_rebuild_{_BUILD_DAY}"
-GLYPH_COUNT = os.environ.get("CN_GLYPH_COUNT") or "1857"
+# Keep the release note in sync with build_cn_patch.py's actual CJK charset.
+with open(os.path.join(ROOT, "trans", "dict.json"), encoding="utf-8") as _dictionary_file:
+    _translations = json.load(_dictionary_file)
+GLYPH_COUNT = os.environ.get("CN_GLYPH_COUNT") or str(len({
+    c for text in _translations.values() for c in text
+    if ord(c) > 0x2000 and c not in FALLBACK
+}))
 
 # Some stock Windows PowerShell installations cannot auto-load Get-FileHash.
 # .NET MD5 is available in Windows PowerShell 5.1 without importing modules.
@@ -188,8 +196,8 @@ README = r"""Isle of Reveries 简体中文汉化补丁
 游戏是 Construct 3（Scirra）引擎导出，全部资源打包在 www\assets.dat 里。
 本补丁替换了该文件，改动包括：
   * 游戏内全部文本（对白、物品说明、菜单、任务、提示）在“显示层”被替换为简体中文；
-  * 字体：正文类文字（对白/物品说明/菜单/任务/制作名单，共 11 个文字对象）
-    换成 11x11 点阵中文字形表 + 1px 字距；HUD 数字与按键字母保持原 8x8 不动（避免破坏版面）；
+  * 字体：对白、标题和制作名单使用 11x11 字格（字距 1px），菜单与物品说明使用 9x10 字格；
+    HUD 数字及按键提示使用 8x8 字格；共扩展 24 个字体对象；
   * 每个字体对象都用开源像素字体 Fusion Pixel Font 重画/扩字，共 {glyphs} 个汉字，无缺字；
   * 中文按 CJK 规则自动换行。
 补丁不改动游戏逻辑、事件表与存档结构：
@@ -200,11 +208,11 @@ README = r"""Isle of Reveries 简体中文汉化补丁
 ------------------
 1. 标题画面的 \"Isle of Reveries\" Logo 是大型美术字，当前保留英文；
    其他已确认的高频图片文字均已直接重绘为中文。
-2. 中文字号：正文用 11x11 点阵（字库 12px 字体的汉字墨迹本就 11x11，所以是 1:1 落格，
-   不缩样），字与字之间留 1px 缝。原版英文是 8x8，汉字在 8x8 下笔画会糊成一团，
-   所以正文放到 11x11（清晰度换版面）。副作用：文字比原版大，个别很窄的文本框可能换行。
-   想再调大小：改 mod_src\tools\build_cn_patch.py 的 CELL12（字格）与 CELL_SPACING（字距）
-   后重跑构建脚本即可（CELL12=10 会更接近原版面、CELL12=12 更清楚）。
+2. 中文字号按文字对象分别配置：对白等为 11x11、菜单和说明为 9x10、
+   HUD 和按键提示为 8x8。要调整字格，请按对象修改
+   mod_src\tools\build_cn_patch.py 中的 CELL_BY_TYPE；字距与行距分别见
+   CELL_SPACING_BY_CELL 和 LINE_HEIGHT_BY_CELL。改动后需重新构建，检查换行、
+   字形图集和界面间距；图片界面的像素文字另由 patch_baked_menus.py 绘制。
 3. 制作人员名单里的个人姓名保留英文；
 4. Steam 若执行“验证文件完整性”会覆盖 assets.dat，需重新运行 安装.bat。
 
