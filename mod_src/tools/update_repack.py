@@ -162,10 +162,6 @@ def main():
     if not os.path.exists(bundle):
         sys.exit(f"[错误] 找不到 {bundle}")
 
-    if game_running():
-        print("  提示：检测到 Isle_of_Reveries.exe 进程（可能是残留/僵尸进程）。")
-        print("        真正的判据是下面的写权限：写不进去就会报错退出。")
-
     patched = is_patched(bundle)
     print(f"游戏资源包: {bundle}")
     print(f"  大小 {os.path.getsize(bundle):,} 字节  md5 {md5(bundle)[:12]}  "
@@ -175,9 +171,11 @@ def main():
     bak = bundle + ".cn-backup"
     if patched:
         print("  → 当前包已经是汉化版，无需重建。")
-        print("     （官方更新后 Steam 会用英文版覆盖本文件，那时再运行本脚本即可；")
-        print("       想现在就强制重建，请先用 Steam「验证文件完整性」还原英文版。）")
+        print("     要安装已发布的汉化修订，请退出游戏并运行新版 安装.bat。")
+        print("     官方更新将资源包替换为英文原版后，再运行本脚本重建。")
         return 0
+    if game_running():
+        sys.exit("[停止] 检测到 Isle_of_Reveries.exe 进程。请先退出游戏，再重建并安装。")
     else:
         check_art_inputs(bundle)
         if os.path.exists(bak):

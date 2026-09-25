@@ -10,3 +10,5 @@ mod_src/dist/
 mod_src/extracted/
 mod_src/extracted_prev/
 
+mod_src/trans/build_report.json
+mod_src/trans/bundle_order.json

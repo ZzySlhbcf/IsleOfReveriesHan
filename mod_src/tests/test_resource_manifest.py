@@ -15,7 +15,7 @@ from resource_manifest import (EXPECTED_CHANGED, IMAGE_LABELS,  # noqa: E402
                                atlas_frame_pixels, unchanged_atlas_frames)
 from c3bundle import read_directory  # noqa: E402
 from audit_localization import natural_event_misses, translator  # noqa: E402
-from patch_baked_menus import dialogue_speaker_names  # noqa: E402
+from patch_baked_menus import dialogue_speaker_names, HIDDEN_NAMES  # noqa: E402
 
 
 class ManifestTest(unittest.TestCase):
@@ -259,6 +259,27 @@ class ManifestTest(unittest.TestCase):
         for x in range(88, 96):
             for y in range(8):
                 self.assertEqual(upper_city.getpixel((x, y)), paper)
+
+        # Build-menu destinations share the same warp background. Their sprite
+        # origin sits 8px left of the regular rows; all must hide the gray ???.
+        for anim, text in HIDDEN_NAMES.items():
+            hidden = frame("BuildMenu_HiddenText", anim)
+            self.assertEqual(hidden.size, (160, 8))
+            for y in range(8):
+                for x in range(8):
+                    self.assertEqual(hidden.getpixel((x, y))[3], 0, anim)
+                for x in range(8, 32):
+                    self.assertEqual(hidden.getpixel((x, y))[3], 255,
+                                     (anim, x, y))
+                for x in range(8 + max(24, 8 * len(text)), hidden.width):
+                    self.assertEqual(hidden.getpixel((x, y))[3], 0,
+                                     (anim, x, y))
+            self.assertTrue(all(any(hidden.getpixel((x, y))[:3] == (7, 24, 33)
+                                for x in range(8 + 8 * i, 16 + 8 * i)
+                                for y in range(8))
+                            for i in range(len(text))), anim)
+        self.assertNotEqual(frame("BuildMenu_HiddenText", "Windmill1").tobytes(),
+                            frame("BuildMenu_HiddenText", "Windmill2").tobytes())
 
 
 if __name__ == "__main__":

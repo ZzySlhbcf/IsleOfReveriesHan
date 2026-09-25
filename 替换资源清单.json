@@ -6,8 +6,8 @@
     "md5": "c129bb8fa4beb49a4e8f23d0748be5fc"
   },
   "patch_bundle": {
-    "size": 73225476,
-    "md5": "5e18d7c385b06278695580a9521b6315"
+    "size": 73225486,
+    "md5": "9731941975ad9ed965817dc0ac186782"
   },
   "modified": [
     {
@@ -19,7 +19,7 @@
       },
       "localized": {
         "size": 27507180,
-        "sha256": "35373513567b477dfd1c9bbc69737517e0d186378a9ae455dfc8b324dadaac19"
+        "sha256": "cebf681d537715928992071f4c5268d7259b22153946c742ae02651627573dbe"
       }
     },
     {
@@ -222,8 +222,8 @@
         "sha256": "6091b4e1b9982699206b9eaeead459e1b37189e47ae4fd7f7eaac7fcf69bfa56"
       },
       "localized": {
-        "size": 4472,
-        "sha256": "b6155d70f34cc0c0d443c2ffa15a96b150e90de53037becfa3e7e83d4623a2f7"
+        "size": 4482,
+        "sha256": "63112d8118a36747778f818b615c1aa452d4e77a9e8db9b22ac0330c6bfc8fa5"
       }
     },
     {

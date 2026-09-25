@@ -62,6 +62,13 @@ if not exist "%GAME%\www\assets.dat" (
   exit /b 1
 )
 
+tasklist /FI "IMAGENAME eq Isle_of_Reveries.exe" /NH 2>nul | find /I "Isle_of_Reveries.exe" >nul
+if not errorlevel 1 (
+  echo [停止] 检测到游戏进程，请先退出游戏后再安装补丁。
+  pause
+  exit /b 1
+)
+
 set "TARGET=%GAME%\www\assets.dat"
 set "CURMD5="
 for /f "delims=" %%H in ('{hash_command}') do set "CURMD5=%%H"
@@ -319,9 +326,9 @@ def main():
     # delivery manifest has already been replaced with the current version.
     same_base_predecessors = {
         "c129bb8fa4beb49a4e8f23d0748be5fc": (
+            "5e18d7c385b06278695580a9521b6315",  # 动物对白与名牌修订版
+            "f9f817d38d2628237f566e6bac44ca02",  # 9 月 25 日初版（游戏当前安装版）
             "6c46aaa2bf490928141009071b4c7e86",  # 小游戏对白修订版
-            "7379f8028660fd0512323822dd5160aa",  # 保存菜单全帧修订
-            "f9f817d38d2628237f566e6bac44ca02",  # 9 月 25 日初版
         ),
         "0ba75e6d85a7707d0759810f6433ed8d": (
             "84629abab5f8b99b2ebb4060a22ac78f",  # 存档页面修订版

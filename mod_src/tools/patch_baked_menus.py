@@ -29,7 +29,7 @@ BUILD_NAMES = (
     None, None, "梦者小屋",
 )
 HIDDEN_NAMES = {"CatStatue": "猫雕像", "PhotoHut": "照相小屋",
-                "DreamersHut": "梦者小屋", "Windmill1": "风车", "Windmill2": "风车"}
+                "DreamersHut": "梦者小屋", "Windmill1": "风车一", "Windmill2": "风车二"}
 WORLD_MAP_NAMES = {
     "1": "雪披峰", "2": "忧郁草原", "3": "灼风沙地", "4": "泥痕台地",
     "5": "上城", "6": "垂泪湿地", "7": "翠绿山谷", "8": "暮色丛林",
@@ -186,9 +186,14 @@ def repaint(project, extracted, dev):
 
     for anim, text in HIDDEN_NAMES.items():
         def edit_hidden(img, text=text):
-            img.paste((0, 0, 0, 0), (0, 0, 128, 8))
-            img.paste(PAPER, (0, 0, 8 * len(text), 8))
-            draw_text(img, font, text, 0, 0, 8 * len(text))
+            # This sprite is placed 8px to the left of the normal warp labels.
+            # Leave its first cell empty to align all rows at the same x=72.
+            # The warp background carries three gray question marks under each
+            # row, so short names must still cover the full 24px of old ink.
+            img.paste((0, 0, 0, 0), (0, 0, img.width, 8))
+            width = max(24, 8 * len(text))
+            img.paste(PAPER, (8, 0, 8 + width, 8))
+            draw_text(img, font, text, 8, 0, width)
         frame("BuildMenu_HiddenText", anim, edit_hidden)
 
     # World map region names and the expand action.  Animation 0 is the

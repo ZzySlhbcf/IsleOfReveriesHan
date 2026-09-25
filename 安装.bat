@@ -4,12 +4,12 @@ setlocal enabledelayedexpansion
 title Isle of Reveries 简体中文补丁 - 安装
 
 set "GAME=D:\Games\Steam\steamapps\common\Isle of Reveries"
-set "PATCHVER=润色版 对白11x11/菜单与说明9x10 (2026-09-25 对话名牌修订)"
+set "PATCHVER=传送菜单对齐与问号修订 (2026-09-25)"
 set "BASEMD5=c129bb8fa4beb49a4e8f23d0748be5fc"
-set "PATCHMD5=5e18d7c385b06278695580a9521b6315"
-set "PREVMD5=6c46aaa2bf490928141009071b4c7e86"
-set "PREVMD5_OLDER=7379f8028660fd0512323822dd5160aa"
-set "PREVMD5_OLDEST=f9f817d38d2628237f566e6bac44ca02"
+set "PATCHMD5=9731941975ad9ed965817dc0ac186782"
+set "PREVMD5=5e18d7c385b06278695580a9521b6315"
+set "PREVMD5_OLDER=f9f817d38d2628237f566e6bac44ca02"
+set "PREVMD5_OLDEST=6c46aaa2bf490928141009071b4c7e86"
 
 if not exist "%GAME%\Isle_of_Reveries.exe" (
   echo [错误] 没有找到游戏目录: %GAME%
@@ -20,6 +20,13 @@ if not exist "%GAME%\Isle_of_Reveries.exe" (
 
 if not exist "%GAME%\www\assets.dat" (
   echo [错误] 没有找到 %GAME%\www\assets.dat
+  pause
+  exit /b 1
+)
+
+tasklist /FI "IMAGENAME eq Isle_of_Reveries.exe" /NH 2>nul | find /I "Isle_of_Reveries.exe" >nul
+if not errorlevel 1 (
+  echo [停止] 检测到游戏进程，请先退出游戏后再安装补丁。
   pause
   exit /b 1
 )
