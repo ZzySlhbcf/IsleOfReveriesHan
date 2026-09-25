@@ -76,9 +76,9 @@ def repaint(project, extracted, dev):
             raise ValueError(f"unexpected direct image geometry: {type_name}")
         return image(spec[0])
 
-    def frame(type_name, animation, edit):
+    def frame(type_name, animation, edit, frame_number=0):
         anim = next(a for a in types[type_name][7] if a[0] == animation)
-        spec = anim[7][0]
+        spec = anim[7][frame_number]
         name, _size, x, y, w, h, rotated = spec[:7]
         if not name.startswith("images/"):
             raise ValueError(f"unexpected atlas geometry: {type_name}/{animation}")
@@ -257,9 +257,9 @@ def repaint(project, extracted, dev):
             draw_text(img, font, text, x, 4, img.width - x, ink=INK)
         frame("FileSelect_Cursor", anim, edit_file_label)
 
-    # The in-game save menu is a separate sprite from the file selection
-    # buttons above.  Only animation 1 contains the baked SAVE/TRINKET/BACK
-    # words; animations 2 and 3 are blank states sharing the same border.
+    # Each of the three selections has two alternating animation frames.
+    # All six contain baked SAVE/TRINKET/BACK, so painting only the first
+    # frame makes the menu alternate between Chinese and English.
     def edit_save_trinket_back(img):
         if img.size != (256, 144):
             raise ValueError(f"unexpected save-menu frame size: {img.size}")
@@ -268,7 +268,10 @@ def repaint(project, extracted, dev):
         for y, text in ((60, "保存"), (68, "饰品"), (76, "返回")):
             img.paste(PAPER, (96, y, 160, y + 8))
             draw_text(img, font, text, 96, y, 64)
-    frame("SaveTrinketBack", "1", edit_save_trinket_back)
+    for animation in types["SaveTrinketBack"][7]:
+        for frame_number in range(len(animation[7])):
+            frame("SaveTrinketBack", animation[0], edit_save_trinket_back,
+                  frame_number=frame_number)
 
     # Confirmation window: preserve the A/B, Space/Z input glyphs and frame.
     for anim in ("GamePad", "Keyboard"):

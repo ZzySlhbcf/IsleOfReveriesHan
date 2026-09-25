@@ -316,6 +316,10 @@ def main():
     # Keep this release's upgrade path if make_dist runs again after the
     # delivery manifest has already been replaced with the current version.
     same_base_predecessors = {
+        "c129bb8fa4beb49a4e8f23d0748be5fc": (
+            "f9f817d38d2628237f566e6bac44ca02",  # September 25 patch
+            "",  # no older patch for this English bundle
+        ),
         "0ba75e6d85a7707d0759810f6433ed8d": (
             "84629abab5f8b99b2ebb4060a22ac78f",  # 存档页面修订版
             "4cdb4d35ce49a5aae7ff5a5df844c830",  # 嘶音修订版

@@ -106,43 +106,52 @@ class ManifestTest(unittest.TestCase):
                                  f"dungeon {number} digit is off-center")
 
     def test_save_menu_translates_only_label_pixels(self):
-        """The in-game save screen must not be confused with file selection."""
+        """All six alternating frames have Chinese labels; cursor art is intact."""
         def frames(bundle):
             entries, _, start = read_directory(bundle)
+            index = {entry["name"]: entry for entry in entries}
             with open(bundle, "rb") as fh:
-                spec = next(e for e in entries if e["name"] == "data.json")
+                spec = index["data.json"]
                 fh.seek(start + spec["offset"])
                 project = json.loads(fh.read(spec["size"]))["project"]
-            sprite = next(o for o in project[3] if isinstance(o, list)
-                          and o[0] == "SaveTrinketBack")
-            result = {}
-            with open(bundle, "rb") as fh:
+                sprite = next(obj for obj in project[3]
+                              if isinstance(obj, list) and obj[0] == "SaveTrinketBack")
+                result = {}
+                atlases = {}
                 for anim in sprite[7]:
-                    name, _, x, y, w, h, rotated = anim[7][0][:7]
-                    entry = next(e for e in entries if e["name"] == name)
-                    fh.seek(start + entry["offset"])
-                    atlas = Image.open(io.BytesIO(fh.read(entry["size"]))).convert("RGBA")
-                    region = atlas.crop((x, y, x + (h if rotated else w),
-                                         y + (w if rotated else h)))
-                    result[anim[0]] = (region.transpose(Image.Transpose.ROTATE_90)
-                                       if rotated else region)
-            return result
+                    for number, spec in enumerate(anim[7]):
+                        name, size, x, y, w, h, rotated = spec[:7]
+                        if name not in atlases:
+                            entry = index[name]
+                            fh.seek(start + entry["offset"])
+                            atlases[name] = Image.open(
+                                io.BytesIO(fh.read(entry["size"]))).convert("RGBA")
+                            self.assertEqual(size, entry["size"])
+                        region = atlases[name].crop((x, y, x + (h if rotated else w),
+                                                      y + (w if rotated else h)))
+                        result[(anim[0], number)] = (
+                            region.transpose(Image.Transpose.ROTATE_90)
+                            if rotated else region)
+                return result
 
         vanilla, patched = frames(self.vanilla), frames(self.patched)
         self.assertEqual(set(vanilla), set(patched))
-        for name in ("2", "3"):
-            self.assertEqual(vanilla[name].tobytes(), patched[name].tobytes())
-        old, new = vanilla["1"], patched["1"]
-        self.assertEqual(old.size, new.size)
-        changed = [(x, y) for y in range(old.height) for x in range(old.width)
-                   if old.getpixel((x, y)) != new.getpixel((x, y))]
-        self.assertTrue(changed, "the save-menu text is still English")
-        for x, y in changed:
-            self.assertTrue(96 <= x < 160 and 60 <= y < 84,
-                            f"save-menu frame/border changed at {(x, y)}")
-        for y in (60, 68, 76):
-            self.assertTrue(any(y <= py < y + 8 for _, py in changed),
-                            f"save-menu row {y} was not redrawn")
+        self.assertEqual(len(patched), 6)
+        for key, new in patched.items():
+            old = vanilla[key]
+            self.assertEqual(old.size, new.size)
+            changed = [(x, y) for y in range(old.height) for x in range(old.width)
+                       if old.getpixel((x, y)) != new.getpixel((x, y))]
+            self.assertTrue(changed, f"still English in {key}")
+            for x, y in changed:
+                self.assertTrue(96 <= x < 160 and 60 <= y < 84,
+                                f"cursor/border changed in {key} at {(x, y)}")
+            for y in (60, 68, 76):
+                self.assertTrue(any(y <= py < y + 8 for _, py in changed),
+                                f"text row {y} unchanged in {key}")
+            # Identical labels across frames even when the selection cursor moves.
+            self.assertEqual(new.crop((96, 60, 160, 84)).tobytes(),
+                             patched[("1", 0)].crop((96, 60, 160, 84)).tobytes())
 
     def test_map_prompt_spacing_and_atlas_preservation(self):
         entries, _, start = read_directory(self.patched)
