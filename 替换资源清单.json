@@ -6,8 +6,8 @@
     "md5": "c129bb8fa4beb49a4e8f23d0748be5fc"
   },
   "patch_bundle": {
-    "size": 73296804,
-    "md5": "7379f8028660fd0512323822dd5160aa"
+    "size": 73224770,
+    "md5": "6c46aaa2bf490928141009071b4c7e86"
   },
   "modified": [
     {
@@ -19,7 +19,7 @@
       },
       "localized": {
         "size": 27507180,
-        "sha256": "3385f88be76ebc548acb0a019ec631da0a284f368b81c49659780b81dd073540"
+        "sha256": "84130900fa42f78bb57383225d00e7bf38c22e9ce82a80f834c637cef2d4c3c0"
       }
     },
     {
@@ -80,6 +80,18 @@
       "localized": {
         "size": 702,
         "sha256": "64892cce4b34d83f99a0fb6c34be0714a95af0f2b9ae31ace07dd5086319ad4f"
+      }
+    },
+    {
+      "path": "images/dialoguebox-sheet0.webp",
+      "purpose": "食蚁兽对话框角色名",
+      "original": {
+        "size": 97058,
+        "sha256": "480c84cf3f01e3c8d33b4167528b2e7d6f85ebe1c4866e4e900d369759c69c7f"
+      },
+      "localized": {
+        "size": 24924,
+        "sha256": "3e2c32ccb903f068ef9911343dd261f8367f47ecadeb40800a71d67bf8b2c15f"
       }
     },
     {
@@ -282,8 +294,8 @@
         "sha256": "5ba25befd733c667f507cfb4cae59a9c67b9fb8c2b2d9a6449724575b1c3eff9"
       },
       "localized": {
-        "size": 2864515,
-        "sha256": "60068448c91ef747297d5a79ca67aca45f945dd41b8c1a49458f1271c13e87d1"
+        "size": 2864615,
+        "sha256": "3017ba7651ee0263d20ccc079409fe7517c05233a613854062c13fb205f2fecf"
       }
     }
   ],

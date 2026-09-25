@@ -267,7 +267,7 @@ Steam 更新会整体覆盖 www\assets.dat，补丁会被冲掉（游戏回到�
 * 安装/卸载/官方更新后重建三个脚本均在测试副本上实测通过；
 * 补丁只改 www\assets.dat 一个文件，不改动 exe、存档与 Steam 配置；
 * 弹琴传送、建造、世界地图及地图详情、两套设置页面、控制设置、存档选择、游戏内存档菜单、
-  图鉴/外观、相册、多人暂停和六个地牢开场标题中原本烘焙在图片里的文字均已重绘为中文；
+  图鉴/外观、相册、多人暂停、食蚁兽对话框角色名和六个地牢开场标题的图片文字均已重绘为中文；
   * 13 种运行时动态拼接的数量/进度句型已通过受限模板汉化。
 * 替换资源清单记录资源包内每项变化的原版/汉化 SHA-256；更新后若原图
   发生变化，自动重建会先停止，防止旧贴图坐标误盖新版美术。
@@ -317,8 +317,8 @@ def main():
     # delivery manifest has already been replaced with the current version.
     same_base_predecessors = {
         "c129bb8fa4beb49a4e8f23d0748be5fc": (
+            "7379f8028660fd0512323822dd5160aa",  # 保存菜单全帧修订
             "f9f817d38d2628237f566e6bac44ca02",  # September 25 patch
-            "",  # no older patch for this English bundle
         ),
         "0ba75e6d85a7707d0759810f6433ed8d": (
             "84629abab5f8b99b2ebb4060a22ac78f",  # 存档页面修订版

@@ -14,6 +14,7 @@ from resource_manifest import (EXPECTED_CHANGED, IMAGE_LABELS,  # noqa: E402
                                changed_original_images, create_manifest,
                                atlas_frame_pixels, unchanged_atlas_frames)
 from c3bundle import read_directory  # noqa: E402
+from audit_localization import natural_event_misses, translator  # noqa: E402
 
 
 class ManifestTest(unittest.TestCase):
@@ -55,10 +56,14 @@ class ManifestTest(unittest.TestCase):
         previous = os.environ.get("CN_PREVIOUS_VANILLA_BUNDLE")
         if not previous or not os.path.isfile(previous):
             self.skipTest("Set CN_PREVIOUS_VANILLA_BUNDLE to previous English bundle")
-        changed = changed_original_images(
+        # Compare the two historically repacked atlases; newly translated
+        # portraits are audited separately by test_anteater_portrait_and_countdown.
+        changed_all = changed_original_images(
             create_manifest(previous, self.patched), self.vanilla)
-        self.assertEqual(changed, ["images/fileselect_cursor-sheet0.webp",
-                                   "images/maps_sprite-sheet0.webp"])
+        repacked = ["images/fileselect_cursor-sheet0.webp",
+                    "images/maps_sprite-sheet0.webp"]
+        self.assertTrue(set(repacked).issubset(changed_all))
+        changed = repacked
         self.assertTrue(unchanged_atlas_frames(previous, self.vanilla, changed))
         base = atlas_frame_pixels(previous, changed)
         self.assertTrue(base)
@@ -68,6 +73,56 @@ class ManifestTest(unittest.TestCase):
         damaged[key] = (size, bytes([pixels[0] ^ 255]) + pixels[1:], attributes)
         with patch("resource_manifest.atlas_frame_pixels", side_effect=[base, damaged]):
             self.assertFalse(unchanged_atlas_frames(previous, self.vanilla, changed))
+
+    def test_countdown_short_phrases_are_audited(self):
+        entries, _, start = read_directory(self.vanilla)
+        runtime = next(row for row in entries if row["name"] == "scripts/c3runtime.js")
+        with open(self.vanilla, "rb") as source:
+            source.seek(start + runtime["offset"])
+            text = source.read(runtime["size"]).decode("utf-8")
+        with open(os.path.join(ROOT, "mod_src", "trans", "dict.json"),
+                  encoding="utf-8") as source:
+            dictionary = json.load(source)
+        self.assertNotIn("Ready...", natural_event_misses(text, translator(dictionary)))
+        self.assertNotIn("Set...", natural_event_misses(text, translator(dictionary)))
+        dictionary.pop("Ready...")
+        dictionary.pop("Set...")
+        misses = natural_event_misses(text, translator(dictionary))
+        self.assertIn("Ready...", misses)
+        self.assertIn("Set...", misses)
+
+    def test_anteater_portrait_and_countdown(self):
+        """Both baked speaker label and short minigame prompts are Chinese."""
+        image = "images/dialoguebox-sheet0.webp"
+        old = atlas_frame_pixels(self.vanilla, {image})
+        new = atlas_frame_pixels(self.patched, {image})
+        self.assertEqual(set(old), set(new))
+        key = (image, "DialogueBox", "AntEater", 0)
+        self.assertIn(key, old)
+        differences = [name for name in old if old[name] != new[name]]
+        self.assertEqual(differences, [key])
+        size, old_bytes, props = old[key]
+        new_size, new_bytes, new_props = new[key]
+        self.assertEqual((size, props), (new_size, new_props))
+        before = Image.frombytes("RGBA", size, old_bytes)
+        after = Image.frombytes("RGBA", size, new_bytes)
+        changed = [(x, y) for y in range(size[1]) for x in range(size[0])
+                   if before.getpixel((x, y)) != after.getpixel((x, y))]
+        self.assertTrue(changed, "the ANT title remains English")
+        self.assertTrue(all(12 <= x < 36 and 8 <= y < 16 for x, y in changed),
+                        "portrait, decoration or border changed outside the name band")
+        # A painted Chinese name must appear in the intended 16px slot.
+        self.assertTrue(any(after.getpixel((x, y)) == (219, 207, 181, 255)
+                            for y in range(8, 16) for x in range(16, 32)))
+        entries, _, start = read_directory(self.patched)
+        runtime = next(item for item in entries if item["name"] == "scripts/c3runtime.js")
+        with open(self.patched, "rb") as fh:
+            fh.seek(start + runtime["offset"])
+            text = fh.read(runtime["size"]).decode("utf-8")
+        for source, target in (("Ready...", "准备……"), ("Set...", "预备……"),
+                               ("Go!!!", "开始！！！")):
+            self.assertIn(json.dumps(source, ensure_ascii=False) + ":" +
+                          json.dumps(target, ensure_ascii=False), text)
 
     def test_dungeon_numbers_are_centered_with_chinese(self):
         """All six splash captions place narrow digits in the middle of a cell."""

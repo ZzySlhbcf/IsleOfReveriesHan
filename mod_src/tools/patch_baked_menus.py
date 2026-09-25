@@ -220,6 +220,17 @@ def repaint(project, extracted, dev):
         draw_text(img, font, "幻想之岛", 44, 0, 40)
     frame("Maps_Sprite", "WorldMap_All", edit_all_map)
 
+    # The NPC name "ANT" is baked into the AntEater dialogue-box image,
+    # independent of the SpriteFont used for the dialogue below it.  Reuse
+    # the dictionary's existing ANT → 蚂蚁 translation inside the name band.
+    def edit_ant_dialogue(img):
+        if img.size != (256, 56):
+            raise ValueError(f"unexpected AntEater dialogue frame: {img.size}")
+        # x<12 and x>=36 hold the decorative corners; row 17 is the border.
+        img.paste(INK, (12, 8, 36, 16))
+        draw_text(img, font, "蚂蚁", 16, 8, 16, ink=PAPER)
+    frame("DialogueBox", "AntEater", edit_ant_dialogue)
+
     # Controls screen: input glyphs (WASD, arrows and controller buttons) are
     # controls rather than prose, so retain them while translating labels.
     controls = direct("ControlsBG")
