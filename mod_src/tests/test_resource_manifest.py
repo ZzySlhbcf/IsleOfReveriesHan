@@ -15,6 +15,7 @@ from resource_manifest import (EXPECTED_CHANGED, IMAGE_LABELS,  # noqa: E402
                                atlas_frame_pixels, unchanged_atlas_frames)
 from c3bundle import read_directory  # noqa: E402
 from audit_localization import natural_event_misses, translator  # noqa: E402
+from patch_baked_menus import dialogue_speaker_names  # noqa: E402
 
 
 class ManifestTest(unittest.TestCase):
@@ -91,29 +92,46 @@ class ManifestTest(unittest.TestCase):
         self.assertIn("Ready...", misses)
         self.assertIn("Set...", misses)
 
-    def test_anteater_portrait_and_countdown(self):
-        """Both baked speaker label and short minigame prompts are Chinese."""
+    def test_all_dialogue_speaker_nameplates(self):
+        """Every named portrait has translated ink; anonymous art is intact."""
         image = "images/dialoguebox-sheet0.webp"
-        old = atlas_frame_pixels(self.vanilla, {image})
-        new = atlas_frame_pixels(self.patched, {image})
-        self.assertEqual(set(old), set(new))
-        key = (image, "DialogueBox", "AntEater", 0)
-        self.assertIn(key, old)
-        differences = [name for name in old if old[name] != new[name]]
-        self.assertEqual(differences, [key])
-        size, old_bytes, props = old[key]
-        new_size, new_bytes, new_props = new[key]
-        self.assertEqual((size, props), (new_size, new_props))
-        before = Image.frombytes("RGBA", size, old_bytes)
-        after = Image.frombytes("RGBA", size, new_bytes)
-        changed = [(x, y) for y in range(size[1]) for x in range(size[0])
-                   if before.getpixel((x, y)) != after.getpixel((x, y))]
-        self.assertTrue(changed, "the ANT title remains English")
-        self.assertTrue(all(12 <= x < 36 and 8 <= y < 16 for x, y in changed),
-                        "portrait, decoration or border changed outside the name band")
-        # A painted Chinese name must appear in the intended 16px slot.
-        self.assertTrue(any(after.getpixel((x, y)) == (219, 207, 181, 255)
-                            for y in range(8, 16) for x in range(16, 32)))
+        original = atlas_frame_pixels(self.vanilla, {image})
+        localized = atlas_frame_pixels(self.patched, {image})
+        self.assertEqual(set(original), set(localized))
+        entries, _, start = read_directory(self.vanilla)
+        data = next(item for item in entries if item["name"] == "data.json")
+        with open(self.vanilla, "rb") as source:
+            source.seek(start + data["offset"])
+            project = json.loads(source.read(data["size"]))["project"]
+        with open(os.path.join(ROOT, "mod_src", "trans", "dict.json"),
+                  encoding="utf-8") as source:
+            dictionary = json.load(source)
+        names = dialogue_speaker_names(project, dictionary)
+        self.assertEqual(len(names), 71)
+        changed_keys = {key for key in original if original[key] != localized[key]}
+        named_keys = {key for key in original
+                      if key[1] == "DialogueBox" and key[2] in names}
+        self.assertEqual(changed_keys, named_keys)
+        for key in sorted(named_keys):
+            (size, old_pixels, attributes) = original[key]
+            (new_size, new_pixels, new_attributes) = localized[key]
+            self.assertEqual((new_size, new_attributes), (size, attributes))
+            before = Image.frombytes("RGBA", size, old_pixels)
+            after = Image.frombytes("RGBA", size, new_pixels)
+            end = 12
+            while before.getpixel((end, 7)) == (219, 207, 181, 255):
+                end += 1
+            width = end - 12
+            self.assertLessEqual(len(names[key[2]]) * 7, width)
+            changed = [(x, y) for y in range(size[1]) for x in range(size[0])
+                       if before.getpixel((x, y)) != after.getpixel((x, y))]
+            self.assertTrue(changed, key)
+            self.assertTrue(all(12 <= x < end and 9 <= y < 16
+                                for x, y in changed), key)
+            self.assertTrue(any(after.getpixel((x, y)) == (219, 207, 181, 255)
+                                for y in range(9, 16) for x in range(12, end)), key)
+
+    def test_bughouse_countdown_still_translates(self):
         entries, _, start = read_directory(self.patched)
         runtime = next(item for item in entries if item["name"] == "scripts/c3runtime.js")
         with open(self.patched, "rb") as fh:

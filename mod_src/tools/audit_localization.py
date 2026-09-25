@@ -119,9 +119,10 @@ def natural_event_misses(runtime, translate):
     for text in values:
         if translate(text) != text:
             continue
-        # Bug-house countdown messages are player-facing single words.  The
-        # long-sentence filter below otherwise misses "Ready..."/"Set...".
-        if re.fullmatch(r"(?:Ready|Set|Go)(?:\.{2,}|!{2,})", text, re.I):
+        # Short punctuated dialogue ("Lief...", "Ahem.", "Set...") has no
+        # spaces and otherwise slips through the long-sentence filter. Keep
+        # unpunctuated event IDs/animation names out of the report.
+        if re.fullmatch(r"[A-Za-z][A-Za-z' .!?…-]*[.!?…]+", text) and len(text) < 50:
             misses.append(text)
             continue
         if len(text) < 4 or " " not in text:

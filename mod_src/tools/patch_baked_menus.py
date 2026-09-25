@@ -4,6 +4,7 @@ The Construct 3 SpriteFont hook cannot reach these labels: they are pixels in
 rotated atlas frames.  Work exclusively from the extracted vanilla art so a
 rebuild cannot paint over previously localised images.
 """
+import json
 import os
 
 from PIL import Image
@@ -37,6 +38,45 @@ DUNGEON_NAMES = {
     "1": "朝圣者圣殿", "2": "蔓生神龛", "3": "巨龙遗骸",
     "4": "时间锁定别墅", "5": "雪覆矿场", "6": "岛屿深处",
 }
+
+# Speaker names are part of DialogueBox's artwork. Most animation IDs match
+# the visible English text; these entries identify the frames that do not.
+DIALOGUE_NAME_KEYS = {
+    "OldFrog": "OLD FROG", "Rabbit": "MARBLE", "Rabbit_Dying": "MARBLE",
+    "Backer_ArmSnake": "PETRISS", "Backer_Quaritz": "QUARTIZ",
+    "Shop_Potion": "TOASTY", "Kiwi": "ATLAS", "Mole": "ARTHUR",
+    "Mermaid": "GUINEVERE", "GreenDove": "CASSIO", "RedDove": "LUCIO",
+    "Akedo": "MR. AKEDO", "AntEater": "ANT", "Musician": "CARMEN",
+    "Pufferfish": "PUFFER", "BigTalkingTree": "TALKING TREE",
+    "SmallTalkingTree": "TALKING TREE",
+}
+# Portrait-only, anonymous and unrevealed-name frames contain no English name.
+DIALOGUE_UNNAMED = {
+    "Default", "Hidden", "Notebook", "Ghost", "Hunter", "HungryMonster",
+    "Backer_ArmSnake_Husk",
+}
+DIALOGUE_NAME_OVERRIDE = {
+    "BigTalkingTree": "大树", "SmallTalkingTree": "小树",
+}
+
+
+def dialogue_speaker_names(project, dictionary):
+    """Resolve exactly the name-bearing DialogueBox animations."""
+    sprite = next(obj for obj in project[3] if isinstance(obj, list)
+                  and obj[0] == "DialogueBox")
+    resolved = {}
+    for animation in sprite[7]:
+        name = animation[0]
+        if (name.startswith(("Husk_", "GoddessScene_"))
+                or name in DIALOGUE_UNNAMED):
+            continue
+        key = DIALOGUE_NAME_KEYS.get(name, name.removeprefix("Backer_").upper())
+        translation = (DIALOGUE_NAME_OVERRIDE.get(name) or dictionary.get(key)
+                       or dictionary.get(name))
+        if not translation or not any("\u4e00" <= c <= "\u9fff" for c in translation):
+            raise ValueError(f"DialogueBox name missing Chinese translation: {name} / {key}")
+        resolved[name] = translation
+    return resolved
 
 
 def draw_text(image, font, text, x, y, width, ink=INK):
@@ -220,16 +260,43 @@ def repaint(project, extracted, dev):
         draw_text(img, font, "幻想之岛", 44, 0, 40)
     frame("Maps_Sprite", "WorldMap_All", edit_all_map)
 
-    # The NPC name "ANT" is baked into the AntEater dialogue-box image,
-    # independent of the SpriteFont used for the dialogue below it.  Reuse
-    # the dictionary's existing ANT → 蚂蚁 translation inside the name band.
-    def edit_ant_dialogue(img):
-        if img.size != (256, 56):
-            raise ValueError(f"unexpected AntEater dialogue frame: {img.size}")
-        # x<12 and x>=36 hold the decorative corners; row 17 is the border.
-        img.paste(INK, (12, 8, 36, 16))
-        draw_text(img, font, "蚂蚁", 16, 8, 16, ink=PAPER)
-    frame("DialogueBox", "AntEater", edit_ant_dialogue)
+    # Nameplates are baked into the dialogue sprite rather than SpriteFont.
+    # Detect each original plaque's paper rail on row 7; its inner area ends
+    # before the decorative right corner. Erase the English ink only in rows
+    # 9..15, then center the Chinese glyphs in the existing nameplate width.
+    with open(os.path.join(ROOT, "trans", "dict.json"), encoding="utf-8") as source:
+        name_dictionary = json.load(source)
+    for animation, translation in dialogue_speaker_names(project, name_dictionary).items():
+        def edit_speaker(img, text=translation, speaker=animation):
+            if img.size != (256, 56) or img.getpixel((12, 7)) != PAPER:
+                raise ValueError(f"unexpected dialogue nameplate: {speaker}")
+            end = 12
+            while end < img.width and img.getpixel((end, 7)) == PAPER:
+                end += 1
+            width = end - 12
+            step = 8 if len(text) * 8 <= width else 7
+            if len(text) * step > width:
+                raise ValueError(f"speaker name exceeds original plaque: {speaker} {text}")
+            img.paste(INK, (12, 9, end, 16))
+            x = 12 + (width - len(text) * step) // 2
+            if step == 8:
+                draw_text(img, font, text, x, 9, len(text) * step, ink=PAPER)
+            else:
+                # CJK 8px glyphs have 7px of ink. Short original plaques
+                # (Pox/Iris/Kiwi) fit three characters without blank columns.
+                pixels = img.load()
+                for col, ch in enumerate(text):
+                    bits = font.rows_to_bits(ch)
+                    if not bits or not bits[0]:
+                        raise ValueError(f"missing speaker glyph: {ch}")
+                    min_x = min(gx for gx, _ in bits[0])
+                    for gx, gy in bits[0]:
+                        px, py = x + col * step + gx - min_x, 9 + 5 - gy
+                        if 12 <= px < end and 9 <= py < 16:
+                            pixels[px, py] = PAPER
+        for number in range(len(next(a for a in types["DialogueBox"][7]
+                                     if a[0] == animation)[7])):
+            frame("DialogueBox", animation, edit_speaker, frame_number=number)
 
     # Controls screen: input glyphs (WASD, arrows and controller buttons) are
     # controls rather than prose, so retain them while translating labels.

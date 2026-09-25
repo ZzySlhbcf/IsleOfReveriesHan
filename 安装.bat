@@ -4,11 +4,12 @@ setlocal enabledelayedexpansion
 title Isle of Reveries 简体中文补丁 - 安装
 
 set "GAME=D:\Games\Steam\steamapps\common\Isle of Reveries"
-set "PATCHVER=润色版 对白11x11/菜单与说明9x10 (2026-09-25 小游戏对白修订)"
+set "PATCHVER=润色版 对白11x11/菜单与说明9x10 (2026-09-25 对话名牌修订)"
 set "BASEMD5=c129bb8fa4beb49a4e8f23d0748be5fc"
-set "PATCHMD5=6c46aaa2bf490928141009071b4c7e86"
-set "PREVMD5=7379f8028660fd0512323822dd5160aa"
-set "PREVMD5_OLDER=f9f817d38d2628237f566e6bac44ca02"
+set "PATCHMD5=5e18d7c385b06278695580a9521b6315"
+set "PREVMD5=6c46aaa2bf490928141009071b4c7e86"
+set "PREVMD5_OLDER=7379f8028660fd0512323822dd5160aa"
+set "PREVMD5_OLDEST=f9f817d38d2628237f566e6bac44ca02"
 
 if not exist "%GAME%\Isle_of_Reveries.exe" (
   echo [错误] 没有找到游戏目录: %GAME%
@@ -35,6 +36,7 @@ if not defined CURMD5 (
 if /I "%CURMD5%"=="%PATCHMD5%" goto writepatch
 if defined PREVMD5 if /I "%CURMD5%"=="%PREVMD5%" goto upgrade
 if defined PREVMD5_OLDER if /I "%CURMD5%"=="%PREVMD5_OLDER%" goto upgrade
+if defined PREVMD5_OLDEST if /I "%CURMD5%"=="%PREVMD5_OLDEST%" goto upgrade
 if /I not "%CURMD5%"=="%BASEMD5%" (
   echo [错误] 当前游戏资源版本与本补丁不匹配，安装已取消。
   echo         这通常表示游戏刚刚更新；请运行 官方更新后重建.bat，

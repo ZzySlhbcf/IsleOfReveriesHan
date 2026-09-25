@@ -18,7 +18,7 @@ IMAGE_LABELS = {
     "images/controlsbg-sheet0.webp": "控制设置背景文字",
     "images/displaybugmenubg-sheet0.webp": "虫子图鉴页签",
     "images/dungeon_title-sheet0.webp": "地牢开场标题",
-    "images/dialoguebox-sheet0.webp": "食蚁兽对话框角色名",
+    "images/dialoguebox-sheet0.webp": "对话框角色名（已知名牌全帧）",
     "images/fashionmenubg-sheet0.webp": "外观颜色选项",
     "images/fileselect_cursor-sheet0.webp": "存档选择按钮",
     "images/mp_pause-sheet0.webp": "多人暂停选项",
