@@ -4,8 +4,8 @@ setlocal
 title Isle of Reveries ºÚÃÂ÷–Œƒ≤π∂° - –∂‘ÿ
 
 set "GAME=D:\Games\Steam\steamapps\common\Isle of Reveries"
-set "BASEMD5=0ba75e6d85a7707d0759810f6433ed8d"
-set "PATCHMD5=6085e13633c029b5108bbb83f243f7b4"
+set "BASEMD5=c129bb8fa4beb49a4e8f23d0748be5fc"
+set "PATCHMD5=f9f817d38d2628237f566e6bac44ca02"
 
 
 if not exist "%GAME%\www\assets.dat.cn-backup" (

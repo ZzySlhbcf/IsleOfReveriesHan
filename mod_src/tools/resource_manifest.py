@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Inventory the exact resource changes inside a Chinese patch bundle."""
 import hashlib
+import io
 import json
 import os
 
 from c3bundle import read_directory
+from PIL import Image
 
 
 MANIFEST_NAME = "替换资源清单.json"
@@ -112,3 +114,67 @@ def changed_original_images(manifest, new_vanilla):
     current = bundle_entries(new_vanilla, old)
     return sorted(name for name, sha in old.items()
                   if name not in current or current[name]["sha256"] != sha)
+
+
+def atlas_frame_pixels(bundle, atlas_names):
+    """Read each referenced animation frame in its unrotated game orientation.
+
+    A game's atlas packer can change sheet bytes and frame coordinates without
+    changing any pixels shown to the player.  Unreferenced sheet pixels do not
+    qualify as evidence that a baked text area has moved.
+    """
+    names = set(atlas_names)
+    entries, _, start = read_directory(bundle)
+    index = {entry["name"]: entry for entry in entries}
+    if "data.json" not in index or not names <= index.keys():
+        raise ValueError("missing atlas or project data")
+    raw = {}
+    with open(bundle, "rb") as source:
+        for name in names | {"data.json"}:
+            spec = index[name]
+            source.seek(start + spec["offset"])
+            raw[name] = source.read(spec["size"])
+            if len(raw[name]) != spec["size"]:
+                raise ValueError(f"truncated atlas/project data: {name}")
+    project = json.loads(raw["data.json"])["project"]
+    sheets = {name: Image.open(io.BytesIO(raw[name])).convert("RGBA") for name in names}
+    found = {}
+    for obj in project[3]:
+        if not isinstance(obj, list) or len(obj) < 8 or not isinstance(obj[7], list):
+            continue
+        for anim in obj[7]:
+            if not isinstance(anim, list) or len(anim) < 8 or not isinstance(anim[7], list):
+                continue
+            for frame_number, spec in enumerate(anim[7]):
+                if not isinstance(spec, list) or len(spec) < 7 or spec[0] not in names:
+                    continue
+                name, _size, x, y, w, h, rotated = spec[:7]
+                image = sheets[name]
+                crop_w, crop_h = (h, w) if rotated else (w, h)
+                if (min(x, y, w, h) < 0 or not w or not h
+                        or x + crop_w > image.width or y + crop_h > image.height):
+                    raise ValueError(f"invalid atlas frame bounds: {obj[0]}/{anim[0]}")
+                crop = image.crop((x, y, x + crop_w, y + crop_h))
+                if rotated:
+                    crop = crop.transpose(Image.Transpose.ROTATE_90)
+                key = (name, obj[0], anim[0], frame_number)
+                if key in found:
+                    raise ValueError(f"duplicate atlas frame: {key}")
+                # Pixel equality alone is not enough if an anchor or collision
+                # polygon changes; those are part of the frame's presentation.
+                found[key] = (crop.size, crop.tobytes(), spec[7:])
+    for name in names:
+        if not any(key[0] == name for key in found):
+            raise ValueError(f"atlas contains no referenced frames: {name}")
+    return found
+
+
+def unchanged_atlas_frames(previous_vanilla, new_vanilla, atlas_names):
+    """Return True only if every named sprite frame survives pixel-for-pixel."""
+    names = set(atlas_names)
+    if not names:
+        return True
+    try:
+        return atlas_frame_pixels(previous_vanilla, names) == atlas_frame_pixels(new_vanilla, names)
+    except (ValueError, KeyError, IndexError, TypeError, OSError):
+        return False

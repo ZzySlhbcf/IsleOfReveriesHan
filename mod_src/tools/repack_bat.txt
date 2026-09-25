@@ -53,9 +53,6 @@ echo 全过程先自动备份新版英文包、重新解包、重建、校验；
 echo.
 %PY% "%HERE%mod_src\tools\update_repack.py" --game "%GAME%"
 if errorlevel 1 (
-  echo.
-  echo [失败] 重建没有成功。把上面的整段输出发给我，我来分析即可。
-  echo         游戏仍是英文原版（脚本不会写坏它）。
   pause
   exit /b 1
 )

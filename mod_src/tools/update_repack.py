@@ -45,7 +45,8 @@ PATCH_JS_MARKER = "\u7b80\u4f53\u4e2d\u6587\u8865\u4e01"   # 简体中文补丁
 
 def check_art_inputs(bundle):
     """An atlas update may move baked text; do not install blindly."""
-    from resource_manifest import MANIFEST_NAME, changed_original_images
+    from resource_manifest import (MANIFEST_NAME, changed_original_images,
+                                   unchanged_atlas_frames)
 
     inventory_path = os.path.join(os.path.dirname(ROOT), MANIFEST_NAME)
     if not os.path.isfile(inventory_path):
@@ -58,12 +59,23 @@ def check_art_inputs(bundle):
     except (KeyError, TypeError, ValueError) as exc:
         sys.exit(f"[失败] 资源清单无效：{exc}；请维护者核对后重建。")
     if changed:
-        print("[停止] 官方更新改动了以下汉化贴图的英文原图：")
-        for name in changed:
-            print("  ", name)
-        sys.exit("原图文字位置可能变化，自动重绘会误盖美术。请按清单逐帧复核后重建；"
-                 "游戏文件与备份均未改动。")
-    print(f"  已对照替换资源清单：{len(inventory['modified']) - 2} 张英文原图均未改变，可自动重建。")
+        old_md5 = inventory.get("base_bundle", {}).get("md5")
+        old_bundle = next((path for path in sorted(
+            (bundle + ".cn-backup", *[os.path.join(os.path.dirname(bundle), name)
+              for name in os.listdir(os.path.dirname(bundle))
+              if name.startswith(os.path.basename(bundle) + ".cn-backup.")]))
+            if os.path.isfile(path) and md5(path) == old_md5), None)
+        if old_bundle and unchanged_atlas_frames(old_bundle, bundle, changed):
+            print(f"  已逐帧对照 {len(changed)} 张重新排布的图集：画面和帧属性一致，可安全重绘。")
+            for name in changed:
+                print("   ", name)
+        else:
+            print("[停止] 官方更新改动了以下汉化贴图的英文原图：")
+            for name in changed:
+                print("  ", name)
+            sys.exit("原图画面变化或缺少可供逐帧对照的旧英文包；"
+                     "请检查文字坐标后再重建。游戏文件与备份均未改动。")
+    print(f"  已检查替换资源清单中 {len(inventory['modified']) - 2} 张英文原图。")
 
 
 def md5(path):

@@ -11,7 +11,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.insert(0, os.path.join(ROOT, "mod_src", "tools"))
 
 from resource_manifest import (EXPECTED_CHANGED, IMAGE_LABELS,  # noqa: E402
-                               changed_original_images, create_manifest)
+                               changed_original_images, create_manifest,
+                               atlas_frame_pixels, unchanged_atlas_frames)
 from c3bundle import read_directory  # noqa: E402
 
 
@@ -45,6 +46,28 @@ class ManifestTest(unittest.TestCase):
         modified["modified"].remove(atlas)
         with self.assertRaises(ValueError):
             changed_original_images(modified, self.vanilla)
+
+    def test_repacked_atlases_are_checked_by_animation_frames(self):
+        """Atlas repacking is safe only if all rendered frames are unchanged."""
+        import copy
+        from unittest.mock import patch
+
+        previous = os.environ.get("CN_PREVIOUS_VANILLA_BUNDLE")
+        if not previous or not os.path.isfile(previous):
+            self.skipTest("Set CN_PREVIOUS_VANILLA_BUNDLE to previous English bundle")
+        changed = changed_original_images(
+            create_manifest(previous, self.patched), self.vanilla)
+        self.assertEqual(changed, ["images/fileselect_cursor-sheet0.webp",
+                                   "images/maps_sprite-sheet0.webp"])
+        self.assertTrue(unchanged_atlas_frames(previous, self.vanilla, changed))
+        base = atlas_frame_pixels(previous, changed)
+        self.assertTrue(base)
+        damaged = copy.copy(base)
+        key = next(iter(damaged))
+        size, pixels, attributes = damaged[key]
+        damaged[key] = (size, bytes([pixels[0] ^ 255]) + pixels[1:], attributes)
+        with patch("resource_manifest.atlas_frame_pixels", side_effect=[base, damaged]):
+            self.assertFalse(unchanged_atlas_frames(previous, self.vanilla, changed))
 
     def test_dungeon_numbers_are_centered_with_chinese(self):
         """All six splash captions place narrow digits in the middle of a cell."""
