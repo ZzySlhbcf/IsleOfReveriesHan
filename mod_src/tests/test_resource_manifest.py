@@ -14,7 +14,7 @@ from resource_manifest import (EXPECTED_CHANGED, IMAGE_LABELS,  # noqa: E402
                                changed_original_images, create_manifest,
                                atlas_frame_pixels, unchanged_atlas_frames)
 from c3bundle import read_directory  # noqa: E402
-from audit_localization import natural_event_misses, translator  # noqa: E402
+from audit_localization import read_entry, natural_event_misses, translator  # noqa: E402
 from patch_baked_menus import dialogue_speaker_names, HIDDEN_NAMES  # noqa: E402
 
 
@@ -225,6 +225,84 @@ class ManifestTest(unittest.TestCase):
             # Identical labels across frames even when the selection cursor moves.
             self.assertEqual(new.crop((96, 60, 160, 84)).tobytes(),
                              patched[("1", 0)].crop((96, 60, 160, 84)).tobytes())
+
+    def test_september_27_new_building_and_preserved_art(self):
+        """The new crypt map and building icon survive repainted text."""
+        names = {"images/buildmenu_pages-sheet0.webp",
+                 "images/buildmenu_pages-sheet1.webp",
+                 "images/maps_sprite-sheet0.webp",
+                 "images/shared-4-sheet1.webp",
+                 "images/shared-9-sheet6.webp"}
+        original = atlas_frame_pixels(self.vanilla, names)
+        localized = atlas_frame_pixels(self.patched, names)
+        self.assertEqual(set(original), set(localized))
+
+        def images(name, obj, animation):
+            key = next(key for key in original if key[0] == name
+                       and key[1] == obj and key[2] == animation)
+            before, after = original[key], localized[key]
+            self.assertEqual(before[0], after[0])
+            self.assertEqual(before[2], after[2])
+            return (Image.frombytes("RGBA", before[0], before[1]),
+                    Image.frombytes("RGBA", after[0], after[1]))
+
+        old, new = images("images/buildmenu_pages-sheet1.webp",
+                          "BuildMenu_Pages", "1")
+        self.assertNotEqual(old.crop((24, 112, 144, 120)).tobytes(),
+                            new.crop((24, 112, 144, 120)).tobytes())
+        ink, paper = (7, 24, 33, 255), (219, 207, 181, 255)
+        for character in range(4):
+            self.assertTrue(any(new.getpixel((x, y)) == ink
+                                for x in range(24 + 8 * character, 32 + 8 * character)
+                                for y in range(112, 120)), character)
+        for y in range(112, 120):
+            for x in range(56, 144):
+                self.assertEqual(new.getpixel((x, y)), paper)
+        self.assertEqual(old.crop((0, 120, 160, 144)).tobytes(),
+                         new.crop((0, 120, 160, 144)).tobytes())
+        for animation, regions in (
+            ("Details_Hollow", [(24, 64, 56, 72), (88, 64, 120, 72)]),
+            ("Destroy_Hollow", [(24, 64, 56, 72)]),
+        ):
+            old, new = images("images/buildmenu_pages-sheet0.webp",
+                              "BuildMenu_Pages", animation)
+            self.assertEqual(old.crop((0, 0, 48, 56)).tobytes(),
+                             new.crop((0, 0, 48, 56)).tobytes())
+            for region in regions:
+                self.assertNotEqual(old.crop(region).tobytes(),
+                                    new.crop(region).tobytes())
+        for name, obj, animation in (
+            ("images/maps_sprite-sheet0.webp", "Maps_Sprite", "DungeonCrypt_HasMap1"),
+            ("images/shared-9-sheet6.webp", "FileSelectSwipe", "Animation 1"),
+        ):
+            old, new = images(name, obj, animation)
+            self.assertEqual(old.tobytes(), new.tobytes(), animation)
+        old, new = images("images/shared-4-sheet1.webp",
+                          "BuildMenu_BuildPrompt", "DetailsClosed")
+        self.assertEqual(old.crop((40, 0, 112, 16)).tobytes(),
+                         new.crop((40, 0, 112, 16)).tobytes())
+
+    def test_official_update_dialogue_coverage(self):
+        runtime = read_entry(self.vanilla, "scripts/c3runtime.js").decode("utf-8")
+        with open(os.path.join(ROOT, "mod_src", "trans", "dict.json"),
+                  encoding="utf-8") as source:
+            dictionary = json.load(source)
+        for text in ("Hero's Hollow", "HERO'S HOLLOW",
+                     "Have you been to Strya's Bazaar? It's just over there, near the big tree.",
+                     "I don't sense a Reverie in this dungeon...",
+                     "Lief's jump slash has been powered up!"):
+            self.assertIn(text, runtime)
+            self.assertIn(text, dictionary)
+            self.assertTrue(any("\u4e00" <= c <= "\u9fff" for c in dictionary[text]))
+        self.assertEqual(natural_event_misses(runtime, translator(dictionary)), [])
+        patched_runtime = read_entry(self.patched, "scripts/c3runtime.js").decode("utf-8")
+        for text in ("Hero's Hollow", "HERO'S HOLLOW",
+                     "Have you been to Strya's Bazaar? It's just over there, near the big tree.",
+                     "I don't sense a Reverie in this dungeon...",
+                     "Lief's jump slash has been powered up!"):
+            pair = (json.dumps(text, ensure_ascii=False) + ":" +
+                    json.dumps(dictionary[text], ensure_ascii=False))
+            self.assertIn(pair, patched_runtime)
 
     def test_map_prompt_spacing_and_atlas_preservation(self):
         entries, _, start = read_directory(self.patched)

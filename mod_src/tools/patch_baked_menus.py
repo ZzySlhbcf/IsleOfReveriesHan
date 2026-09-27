@@ -26,7 +26,7 @@ WARP_NAMES = {
 }
 BUILD_NAMES = (
     "神殿", "占卜师", "风车", "邮局", "花园", "剧场", "天文台", "试炼之井",
-    None, None, "梦者小屋",
+    None, None, "梦者小屋", "英雄之谷",
 )
 HIDDEN_NAMES = {"CatStatue": "猫雕像", "PhotoHut": "照相小屋",
                 "DreamersHut": "梦者小屋", "Windmill1": "风车一", "Windmill2": "风车二"}

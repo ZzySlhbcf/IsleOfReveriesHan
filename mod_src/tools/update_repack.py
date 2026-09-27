@@ -60,6 +60,28 @@ def check_art_inputs(bundle):
         sys.exit(f"[失败] 资源清单无效：{exc}；请维护者核对后重建。")
     if changed:
         old_md5 = inventory.get("base_bundle", {}).get("md5")
+        # September 27 update: inspected all changed frames against the old
+        # English bundle. BuildMenu gained Hero's Hollow; the crypt map changed
+        # room markers, the build prompt changed its decorative rail. Other
+        # changed atlases were repacked with pixel-identical existing frames.
+        # Pin both complete bundle hashes and the atlas list so later updates
+        # still stop for review if any of this artwork changes again.
+        reviewed = {
+            ("c129bb8fa4beb49a4e8f23d0748be5fc",
+             "06e9ffd80556cef82791cc1a84d0557d"): {
+                "images/buildmenu_pages-sheet0.webp",
+                "images/buildmenu_pages-sheet1.webp",
+                "images/dialoguebox-sheet0.webp",
+                "images/dungeon_title-sheet0.webp",
+                "images/fileselect_cursor-sheet0.webp",
+                "images/maps_sprite-sheet0.webp",
+                "images/shared-4-sheet1.webp",
+                "images/shared-9-sheet6.webp",
+            },
+        }
+        if set(changed) == reviewed.get((old_md5, md5(bundle))):
+            print("  已复核本次官方更新的 8 张汉化图集：新建筑及地图画面保留，文字区域可重绘。")
+            return
         old_bundle = next((path for path in sorted(
             (bundle + ".cn-backup", *[os.path.join(os.path.dirname(bundle), name)
               for name in os.listdir(os.path.dirname(bundle))
@@ -107,11 +129,11 @@ def game_running():
 def work_root():
     """Where the pipeline runs.
 
-    From the dev workspace (tools/ next to trans/) use it as is; from a shipped
-    copy (dist/mod_src/tools/...) copy tools+trans+fonts to a temp dir so the
-    delivery folder is never polluted with dev/, dist/ or extracted/.
+    The development workspace has an extracted/ source snapshot. A shipped
+    copy (dist/mod_src/tools/...) has no snapshot: stage its tools, translations
+    and fonts in a temp directory so the release folder stays clean.
     """
-    if os.path.basename(ROOT) != "mod_src":
+    if os.path.isdir(os.path.join(ROOT, "extracted")):
         return ROOT
     work = os.path.join(os.environ.get("TEMP") or tempfile.gettempdir(), "isle_cn_rebuild")
     for sub in ("tools", "trans", "fonts"):

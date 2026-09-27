@@ -306,7 +306,7 @@ mod_src\ ................ 源码与工具（可自行修改后重新构建；需
     tools\verify_glyphs.py       逐格字形校验（对照字体原件）
     tools\normalize_terms.py     术语归一
     tools\make_dist.py          生成 dist 交付目录
-    trans\dict.json              英中对照表（4012 条，可自行修订）
+    trans\dict.json              英中对照表（{dict_entries} 条，可自行修订）
     trans\dict_round1.json       最初的机翻版本（留档对比）
     fonts\                       所用开源像素字体（Fusion Pixel Font）及许可证 OFL
 """
@@ -365,7 +365,8 @@ def main():
                 .replace("{base_md5}", base_md5).replace("{patch_md5}", patch_md5)
                 .replace("{hash_command}", HASH_COMMAND))
     with open(os.path.join(DIST, "说明.txt"), "w", encoding="utf-8-sig", newline="\r\n") as f:
-        f.write(README.replace("{game}", GAME).replace("{glyphs}", GLYPH_COUNT))
+        f.write(README.replace("{game}", GAME).replace("{glyphs}", GLYPH_COUNT)
+                .replace("{dict_entries}", str(len(_translations))))
     # 官方更新后重建脚本（模板见 tools/repack_bat.txt）
     tpl = os.path.join(ROOT, "tools", "repack_bat.txt")
     if os.path.exists(tpl):
