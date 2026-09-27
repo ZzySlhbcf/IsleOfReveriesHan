@@ -4,6 +4,7 @@ import io
 import os
 import sys
 import unittest
+from collections import Counter
 
 from PIL import Image
 
@@ -16,6 +17,8 @@ from resource_manifest import (EXPECTED_CHANGED, IMAGE_LABELS,  # noqa: E402
 from c3bundle import read_directory  # noqa: E402
 from audit_localization import read_entry, natural_event_misses, translator  # noqa: E402
 from patch_baked_menus import dialogue_speaker_names, HIDDEN_NAMES  # noqa: E402
+from bdf import Bdf  # noqa: E402
+from build_cn_patch import CELL_BY_TYPE, charsets_of, FALLBACK  # noqa: E402
 
 
 class ManifestTest(unittest.TestCase):
@@ -303,6 +306,59 @@ class ManifestTest(unittest.TestCase):
             pair = (json.dumps(text, ensure_ascii=False) + ":" +
                     json.dumps(dictionary[text], ensure_ascii=False))
             self.assertIn(pair, patched_runtime)
+
+    def test_all_font_sizes_share_baseline_without_clipping(self):
+        """Check actual shipped cells against fixed BDF baseline coordinates."""
+        vanilla = json.loads(read_entry(self.vanilla, "data.json"))["project"]
+        patched = json.loads(read_entry(self.patched, "data.json"))["project"]
+        with open(os.path.join(ROOT, "mod_src", "trans", "dict.json"),
+                  encoding="utf-8") as source:
+            dictionary = json.load(source)
+        font_for_width = {
+            8: Bdf(os.path.join(ROOT, "mod_src", "fonts",
+                                "fusion-pixel-8px-monospaced-zh_hans.bdf")),
+            9: Bdf(os.path.join(ROOT, "mod_src", "fonts",
+                                "fusion-pixel-10px-monospaced-zh_hans.bdf")),
+            11: Bdf(os.path.join(ROOT, "mod_src", "fonts",
+                                 "fusion-pixel-12px-monospaced-zh_hans.bdf")),
+        }
+        chars = sorted({c for text in dictionary.values() for c in text
+                        if ord(c) > 0x2000 and c not in FALLBACK
+                        and all(font.get(c) for font in font_for_width.values())})
+        self.assertIn("一", chars)
+        counts = Counter(cs for i, obj in enumerate(vanilla[3])
+                         if isinstance(obj, list) and obj[1] == 14
+                         for cs in charsets_of(vanilla, i))
+        common = counts.most_common(1)[0][0]
+        names = {obj[0]: obj for obj in patched[3]
+                 if isinstance(obj, list) and obj[1] == 14}
+        self.assertEqual(len(names), 24)
+        # BDF 8/10/12px: the stroke in 一 is at y=3/4/5 respectively.
+        expected_rows = {8: 3, 9: 4, 11: 5}
+        for i, old in enumerate(vanilla[3]):
+            if not isinstance(old, list) or old[1] != 14:
+                continue
+            name = old[0]
+            width, height = CELL_BY_TYPE.get(name, (8, 8))
+            font = font_for_width[width]
+            original_charsets = charsets_of(vanilla, i)
+            base = max(original_charsets, key=len) if original_charsets else common
+            image = Image.open(io.BytesIO(read_entry(self.patched, names[name][6][0])))
+            columns = image.width // width
+            index = len(base) + chars.index("一")
+            x, y = (index % columns) * width, (index // columns) * height
+            glyph = image.crop((x, y, x + width, y + height)).convert("RGBA")
+            stroke_width = len({px for px, _ in font.rows_to_bits("一")[0]})
+            left = (width - stroke_width) // 2
+            self.assertEqual(glyph.getbbox(),
+                             (left, expected_rows[width], left + stroke_width,
+                              expected_rows[width] + 1), name)
+            # All font glyphs used by the translation fit at this fixed baseline.
+            baseline = {8: 5, 9: 7, 11: 8}[width]
+            for char in chars:
+                points = font.rows_to_bits(char)[0]
+                self.assertTrue(all(0 <= baseline - gy < height for _, gy in points),
+                                (name, char))
 
     def test_map_prompt_spacing_and_atlas_preservation(self):
         entries, _, start = read_directory(self.patched)

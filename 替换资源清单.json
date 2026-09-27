@@ -6,8 +6,8 @@
     "md5": "06e9ffd80556cef82791cc1a84d0557d"
   },
   "patch_bundle": {
-    "size": 73277193,
-    "md5": "a5d275e94dc10a3872c7341da10ed6bf"
+    "size": 73277219,
+    "md5": "07977ea85dcd25761490167113d3925d"
   },
   "modified": [
     {
@@ -19,7 +19,7 @@
       },
       "localized": {
         "size": 27570079,
-        "sha256": "a5e102e79aeddb986a72fed0b3ac050a13f78d1c724e1fcc1d9a9c96130bab63"
+        "sha256": "e2c90807cfec26fdc822fbe28caff95d79094acda4565efec1ac556824042f58"
       }
     },
     {
@@ -304,24 +304,24 @@
       "path": "images/cnfont_BugMuseumMenuText.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 18638,
-        "sha256": "2dafa1a5048c089df8ca1a2452d0a842a66c37aec1e877ef6b705ca7b4eb4ba3"
+        "size": 18634,
+        "sha256": "6da9f5a162f2981dc4ebbaf77d0b9e9884aefeccf1de1d7293567d7353b9795d"
       }
     },
     {
       "path": "images/cnfont_BuildMenuName.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 18638,
-        "sha256": "2dafa1a5048c089df8ca1a2452d0a842a66c37aec1e877ef6b705ca7b4eb4ba3"
+        "size": 18634,
+        "sha256": "6da9f5a162f2981dc4ebbaf77d0b9e9884aefeccf1de1d7293567d7353b9795d"
       }
     },
     {
       "path": "images/cnfont_CoinCount.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 12784,
-        "sha256": "9a502a5b323d9569f5f05a72f84f6b07610b55e0ab4d16ce89fb7f77f8903a13"
+        "size": 12794,
+        "sha256": "fbf98f354615892d7e3d3b4658f22cc7eff6008306875e8bc1534e9c48ae2ef2"
       }
     },
     {
@@ -329,167 +329,167 @@
       "purpose": "新增中文字形图集",
       "localized": {
         "size": 12802,
-        "sha256": "d530958432537bf3b53399f8e0cadf267b2cf218f8f6c25844fab3dde51a687d"
+        "sha256": "cc4e40126c8c59f9b2c9f14e36e5ed6ea96d4e254dc586f18a1da200a2c830d7"
       }
     },
     {
       "path": "images/cnfont_FairyCount.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 12850,
-        "sha256": "cfffa4e0077189b98fb44c1599ec3522d39666e18aff0865c25d58a89959eec4"
+        "size": 12852,
+        "sha256": "59c093ab1510c3c5957c7de7ff1ec41a7e4bd3ea31881b35946064b0f82ab5a9"
       }
     },
     {
       "path": "images/cnfont_HUD_BindingsKeyboard.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 14368,
-        "sha256": "33ec6c61465b0dd6b6020930f761bda10804fb08c76d9f203375e95d2e68285e"
+        "size": 14364,
+        "sha256": "ac5e9c6a3d709b4b02b8178e8a8b26ba7bdafe8056976adef795dfcc4c039b3f"
       }
     },
     {
       "path": "images/cnfont_HUD_FairyCount.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 12784,
-        "sha256": "9a502a5b323d9569f5f05a72f84f6b07610b55e0ab4d16ce89fb7f77f8903a13"
+        "size": 12794,
+        "sha256": "fbf98f354615892d7e3d3b4658f22cc7eff6008306875e8bc1534e9c48ae2ef2"
       }
     },
     {
       "path": "images/cnfont_HUD_KeyCount.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 12784,
-        "sha256": "9a502a5b323d9569f5f05a72f84f6b07610b55e0ab4d16ce89fb7f77f8903a13"
+        "size": 12794,
+        "sha256": "fbf98f354615892d7e3d3b4658f22cc7eff6008306875e8bc1534e9c48ae2ef2"
       }
     },
     {
       "path": "images/cnfont_ItemDescription.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 18638,
-        "sha256": "2dafa1a5048c089df8ca1a2452d0a842a66c37aec1e877ef6b705ca7b4eb4ba3"
+        "size": 18634,
+        "sha256": "6da9f5a162f2981dc4ebbaf77d0b9e9884aefeccf1de1d7293567d7353b9795d"
       }
     },
     {
       "path": "images/cnfont_KeyCount.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 12850,
-        "sha256": "cfffa4e0077189b98fb44c1599ec3522d39666e18aff0865c25d58a89959eec4"
+        "size": 12852,
+        "sha256": "59c093ab1510c3c5957c7de7ff1ec41a7e4bd3ea31881b35946064b0f82ab5a9"
       }
     },
     {
       "path": "images/cnfont_MP_HUD_BindingsKeyboard.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 12824,
-        "sha256": "fa31fd34cfab940b5f5efbc25985218d671ece563c66b4cafbaadf6c6725e889"
+        "size": 12826,
+        "sha256": "22954bba546a4f0623db1aabde908f9d27fbfd3da9203daa6f8dbd211b86c6bb"
       }
     },
     {
       "path": "images/cnfont_Map_KeyboardBind.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 12812,
-        "sha256": "c0b1cd29f34027a2159947eb0ba7d23ccb316feae8457fb42dcfd3b2b1709154"
+        "size": 12814,
+        "sha256": "4c2fa83df1f85038f6c113ae00ddd2e7b54d3893c041170095cadc410ec1fb52"
       }
     },
     {
       "path": "images/cnfont_MenuName.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 18638,
-        "sha256": "2dafa1a5048c089df8ca1a2452d0a842a66c37aec1e877ef6b705ca7b4eb4ba3"
+        "size": 18634,
+        "sha256": "6da9f5a162f2981dc4ebbaf77d0b9e9884aefeccf1de1d7293567d7353b9795d"
       }
     },
     {
       "path": "images/cnfont_Multiplayer_RoomNum.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 12768,
-        "sha256": "17da57c1f7d704708b4a478f63f5d1450f10ce24920052882a2e8fda5629c4cf"
+        "size": 12770,
+        "sha256": "ac1618faf656a025e539a3e02af93eca6bc962638486cb53b4e8cdadb74f7faa"
       }
     },
     {
       "path": "images/cnfont_NoteMenuName.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 18638,
-        "sha256": "2dafa1a5048c089df8ca1a2452d0a842a66c37aec1e877ef6b705ca7b4eb4ba3"
+        "size": 18634,
+        "sha256": "6da9f5a162f2981dc4ebbaf77d0b9e9884aefeccf1de1d7293567d7353b9795d"
       }
     },
     {
       "path": "images/cnfont_ShellCount.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 12784,
-        "sha256": "9a502a5b323d9569f5f05a72f84f6b07610b55e0ab4d16ce89fb7f77f8903a13"
+        "size": 12794,
+        "sha256": "fbf98f354615892d7e3d3b4658f22cc7eff6008306875e8bc1534e9c48ae2ef2"
       }
     },
     {
       "path": "images/cnfont_SlideIn_Count.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 12848,
-        "sha256": "d0983997424924456856270d0045d278b1a4f52761175572a92125cc77def740"
+        "size": 12852,
+        "sha256": "ddeee1a1e8b4451d0c574abd8cbd4938d194ed88a7e88e779d2f0300170434ae"
       }
     },
     {
       "path": "images/cnfont_SpriteFont_Credits.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 26208,
-        "sha256": "d944d8a8c4e6f50378790567e0a3c486b0af7c1574c3ed146f1ef474b9044d42"
+        "size": 26214,
+        "sha256": "86fc02247e493639eec4e0f95a0c113c4cb452745ffcb4992da9a31d5c60f330"
       }
     },
     {
       "path": "images/cnfont_SpriteFont_Dialogue.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 26146,
-        "sha256": "12ba56e72f024049079d269d706bdaa7a0953cd2b79802452a931af75de07607"
+        "size": 26144,
+        "sha256": "a12ac0ad28991a4b5d0e33acd385ceb7a47118ff22da15fb7472efebe9e1f17d"
       }
     },
     {
       "path": "images/cnfont_SpriteFont_Fishing.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 26146,
-        "sha256": "12ba56e72f024049079d269d706bdaa7a0953cd2b79802452a931af75de07607"
+        "size": 26144,
+        "sha256": "a12ac0ad28991a4b5d0e33acd385ceb7a47118ff22da15fb7472efebe9e1f17d"
       }
     },
     {
       "path": "images/cnfont_TitleDeathCount.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 12792,
-        "sha256": "d3ffa000cff7dd6f57d0aa1e244882242938595b08d11c930627f17648021609"
+        "size": 12794,
+        "sha256": "12cb5f35a738becc7dac3db42cbc06cff201bbff9587a7ed490db9f1ba5d8775"
       }
     },
     {
       "path": "images/cnfont_TitleScreenText.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 26146,
-        "sha256": "12ba56e72f024049079d269d706bdaa7a0953cd2b79802452a931af75de07607"
+        "size": 26144,
+        "sha256": "a12ac0ad28991a4b5d0e33acd385ceb7a47118ff22da15fb7472efebe9e1f17d"
       }
     },
     {
       "path": "images/cnfont_TitleTexts.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 26146,
-        "sha256": "12ba56e72f024049079d269d706bdaa7a0953cd2b79802452a931af75de07607"
+        "size": 26144,
+        "sha256": "a12ac0ad28991a4b5d0e33acd385ceb7a47118ff22da15fb7472efebe9e1f17d"
       }
     },
     {
       "path": "images/cnfont_TrinketMenuName.webp",
       "purpose": "新增中文字形图集",
       "localized": {
-        "size": 18638,
-        "sha256": "2dafa1a5048c089df8ca1a2452d0a842a66c37aec1e877ef6b705ca7b4eb4ba3"
+        "size": 18634,
+        "sha256": "6da9f5a162f2981dc4ebbaf77d0b9e9884aefeccf1de1d7293567d7353b9795d"
       }
     }
   ],

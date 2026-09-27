@@ -42,7 +42,7 @@ def base_ref_of(bdf, sample):
     return max(set(ys), key=ys.count) if ys else 0
 
 
-def canon(bdf, ch, box, base_ref=None, align='center'):
+def canon(bdf, ch, box, base_ref=None):
     """Canonical top-down bitmap of `ch`, 按基线对齐放进 (w, h) 字格。"""
     got = bdf.rows_to_bits(ch)
     if not got or not got[0]:
@@ -57,12 +57,9 @@ def canon(bdf, ch, box, base_ref=None, align='center'):
     gw, gh = maxx - minx + 1, maxy - miny + 1
     left = max(0, (w - gw) // 2)
     ref = base_ref if base_ref is not None else maxy
-    ink = ref - miny + 1
-    off = 0 if align == 'top' else (max(0, h - ink) if align == 'bottom' else max(0, (h - ink) // 2))
-    top = off
     for (x, y) in pts:
         X = left + (x - minx)
-        Y = top + (ref - y)
+        Y = ref - y
         if 0 <= X < w and 0 <= Y < h:
             g[Y, X] = 1
     return g
@@ -145,7 +142,7 @@ def check_sheet(bundle):
             idx = base + k
             cy, cx = (idx // cols) * ch, (idx % cols) * cw
             got = A[cy:cy + ch, cx:cx + cw] > 100
-            ref = canon(bdf, c, (cw, ch), BASE_REF[id(bdf)], B.INK_ALIGN_BY_TYPE.get(name, 'center'))
+            ref = canon(bdf, c, (cw, ch), BASE_REF[id(bdf)])
             if ref is None or got.shape != ref.shape:
                 bad.append((name, c, "shape"))
                 t_bad += 1

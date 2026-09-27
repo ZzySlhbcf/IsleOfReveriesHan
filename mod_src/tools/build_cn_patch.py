@@ -73,10 +73,7 @@ GAP_NUDGE = 2        # 运行时下移像素（8px 字格本身已自带 1px 缝
 RERENDER_8PX = {"MenuName", "ItemDescription", "TrinketMenuName",
                 "BuildMenuName", "BugMuseumMenuText", "NoteMenuName"}
 CELL_SPACING = 1          # 汉字之间的额外字距（像素）——只给 11 号用
-# 墨迹在格内贴顶 / 贴底：同一对“物品名+说明”常常是两个不同对象，
-# 一个贴顶一个贴底，两者之间才有缝（同类对象之间则是 0）。
-# 墨迹在格内贴顶/贴底只对“放大字格”有意义；8x8 保持居中（和原版一致）不填这里。
-INK_ALIGN_BY_TYPE = {}
+# 所有字形共用固定基线；不要按单字墨迹高度额外下移，否则“一”等矮字偏低。
 CELL_SPACING_BY_CELL = {9: 0, 10: 1, 11: 1}   # 按格宽配字距，小格不再留缝
 # 行距加值（按格宽给）：行步长 = 格高 + 该值。菜单格高 11 且字形 9 -> 换行缝 2px；
 # 11x11 方形格字形满格，需要 +2 才有 2px 缝。
@@ -243,8 +240,7 @@ def main(use_stub=False):
         if cw_ != 8:
             info = fontsheet.build(os.path.join(DEV, atlas), (x, y, w, h), base, cn_chars,
                                    BDF_FOR_CELL[cw_], outimg, cell=cell, rerender_all=True,
-                                   base_ref=BASE_REF[cw_],
-                                   ink_align=INK_ALIGN_BY_TYPE.get(ot[0], 'center'))
+                                   base_ref=BASE_REF[cw_])
             for cand in iter_type_states(project, tid):
                 cand[2] = cw_
                 cand[3] = ch_
