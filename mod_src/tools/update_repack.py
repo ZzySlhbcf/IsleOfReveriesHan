@@ -82,6 +82,33 @@ def check_art_inputs(bundle):
         if set(changed) == reviewed.get((old_md5, md5(bundle))):
             print("  已复核本次官方更新的 8 张汉化图集：新建筑及地图画面保留，文字区域可重绘。")
             return
+        # September 28: five atlases were repacked. Every surviving named
+        # frame is pixel/attribute identical; one obsolete FileSelectSwipe
+        # animation was removed. Check that exact frame delta against the
+        # preserved English backup before accepting the new atlas geometry.
+        if (old_md5, md5(bundle)) == (
+            "06e9ffd80556cef82791cc1a84d0557d",
+            "1819ebb21f6d71f873c5d6ba73126642",
+        ) and set(changed) == {
+            "images/dialoguebox-sheet0.webp",
+            "images/dungeon_title-sheet0.webp",
+            "images/fileselect_cursor-sheet0.webp",
+            "images/maps_sprite-sheet0.webp",
+            "images/shared-9-sheet6.webp",
+        }:
+            from resource_manifest import atlas_frame_pixels
+            previous = bundle + ".cn-backup"
+            if os.path.isfile(previous) and md5(previous) == old_md5:
+                old_frames = atlas_frame_pixels(previous, changed)
+                new_frames = atlas_frame_pixels(bundle, changed)
+                removed = {("images/shared-9-sheet6.webp",
+                            "FileSelectSwipe", "Animation 1", 0)}
+                if (old_frames.keys() - new_frames.keys() == removed
+                        and not new_frames.keys() - old_frames.keys()
+                        and all(old_frames[key] == new_frames[key]
+                                for key in new_frames)):
+                    print("  已逐帧复核本次官方更新的 5 张图集；移除一帧旧存档转场，其他画面未变。")
+                    return
         old_bundle = next((path for path in sorted(
             (bundle + ".cn-backup", *[os.path.join(os.path.dirname(bundle), name)
               for name in os.listdir(os.path.dirname(bundle))

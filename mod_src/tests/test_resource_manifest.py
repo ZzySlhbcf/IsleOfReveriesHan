@@ -274,16 +274,58 @@ class ManifestTest(unittest.TestCase):
             for region in regions:
                 self.assertNotEqual(old.crop(region).tobytes(),
                                     new.crop(region).tobytes())
-        for name, obj, animation in (
-            ("images/maps_sprite-sheet0.webp", "Maps_Sprite", "DungeonCrypt_HasMap1"),
-            ("images/shared-9-sheet6.webp", "FileSelectSwipe", "Animation 1"),
-        ):
-            old, new = images(name, obj, animation)
-            self.assertEqual(old.tobytes(), new.tobytes(), animation)
+        old, new = images("images/maps_sprite-sheet0.webp",
+                          "Maps_Sprite", "DungeonCrypt_HasMap1")
+        self.assertEqual(old.tobytes(), new.tobytes())
         old, new = images("images/shared-4-sheet1.webp",
                           "BuildMenu_BuildPrompt", "DetailsClosed")
         self.assertEqual(old.crop((40, 0, 112, 16)).tobytes(),
                          new.crop((40, 0, 112, 16)).tobytes())
+
+    def test_september_28_dialogue_and_removed_transition(self):
+        runtime = read_entry(self.vanilla, "scripts/c3runtime.js").decode("utf-8")
+        with open(os.path.join(ROOT, "mod_src", "trans", "dict.json"),
+                  encoding="utf-8") as source:
+            dictionary = json.load(source)
+        additions = (
+            "'It seems this is my only path to reach the great desert on a plateau.'",
+            "Further north is a shrine built into a huge tree. Is that where you're headed?",
+            "How do I know that? Because you can't swim! And neither can I...",
+            "Hoy, Lief! So your travels have brought you to the desert, eh?",
+            "I'll be heading through the Snowcloaked Summit in the northeast.",
+            "I've gotta get me one of those!", "North: Overgrown Shrine.",
+            "That's what's north of us, but you can't get through this way.",
+            "What? You magically learned how to swim!?",
+            "You'll have to find another way around.",
+        )
+        localized = read_entry(self.patched, "scripts/c3runtime.js").decode("utf-8")
+        for text in additions:
+            self.assertIn(text, runtime)
+            self.assertTrue(any("\u4e00" <= c <= "\u9fff"
+                                for c in dictionary[text]), text)
+            self.assertIn(json.dumps(text, ensure_ascii=False) + ":" +
+                          json.dumps(dictionary[text], ensure_ascii=False), localized)
+        self.assertEqual(natural_event_misses(runtime, translator(dictionary)), [])
+
+        changed = {"images/dialoguebox-sheet0.webp",
+                   "images/dungeon_title-sheet0.webp",
+                   "images/fileselect_cursor-sheet0.webp",
+                   "images/maps_sprite-sheet0.webp",
+                   "images/shared-9-sheet6.webp"}
+        before = os.environ.get("CN_PREVIOUS_VANILLA_BUNDLE")
+        if before and os.path.isfile(before):
+            old = atlas_frame_pixels(before, changed)
+            current = atlas_frame_pixels(self.vanilla, changed)
+            self.assertEqual(set(old) - set(current),
+                             {("images/shared-9-sheet6.webp",
+                               "FileSelectSwipe", "Animation 1", 0)})
+            self.assertEqual(set(current) - set(old), set())
+            self.assertEqual({k: old[k] for k in current}, current)
+        vanilla_frames = atlas_frame_pixels(self.vanilla, changed)
+        patched_frames = atlas_frame_pixels(self.patched, changed)
+        self.assertEqual(set(vanilla_frames), set(patched_frames))
+        self.assertNotIn(("images/shared-9-sheet6.webp",
+                          "FileSelectSwipe", "Animation 1", 0), patched_frames)
 
     def test_official_update_dialogue_coverage(self):
         runtime = read_entry(self.vanilla, "scripts/c3runtime.js").decode("utf-8")
