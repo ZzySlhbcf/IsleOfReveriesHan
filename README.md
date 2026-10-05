@@ -25,7 +25,7 @@
    ```
 
 3. 打开下载好的 `IsleOfReveriesHan` 文件夹，查看 [版本.txt](版本.txt)，确认补丁支持你的游戏版本。
-4. 检查 `安装.bat`、`卸载.bat` 和 `官方更新后重建.bat` 里的游戏路径。不对的话，按下面的说明修改，三个文件都要改。
+4. 更改 `安装.bat`、`卸载.bat` 和 `官方更新后重建.bat` 里的游戏路径为实际安装路径。
 5. 双击 `安装.bat`，按提示安装。
 6. 打开游戏。
 
@@ -42,7 +42,7 @@ set "GAME=D:\Games\Steam\steamapps\common\Isle of Reveries"
 如果游戏不在这个位置，就需要修改：
 
 1. 在 Steam 库中右键 **Isle of Reveries** → **管理** → **浏览本地文件**。
-2. 复制地址栏里的路径。打开的文件夹里应该能看到 `Isle_of_Reveries.exe` 和 `www`。
+2. 复制地址栏里的路径。
 3. 用记事本打开补丁里的 `安装.bat`、`卸载.bat` 和 `官方更新后重建.bat`。
 4. 找到开头的 `set "GAME=..."`，把等号后面的路径换成你的游戏路径。比如游戏装在 E 盘：
 
@@ -50,13 +50,11 @@ set "GAME=D:\Games\Steam\steamapps\common\Isle of Reveries"
    set "GAME=E:\SteamLibrary\steamapps\common\Isle of Reveries"
    ```
 
-5. 保存三个文件，保留原来的编码和 `.bat` 扩展名，别存成 `.bat.txt`。
-
-路径填到游戏文件夹就行，不要加上 EXE 文件名、`\www` 或 `\assets.dat`。保留这一行的双引号，路径里有空格也没关系。BAT 文件名不用改。
+5. 保存三个文件，保留原来的编码和 `.bat` 扩展名。
 
 ## 卸载
 
-退出游戏，双击 `卸载.bat` 就可以恢复英文。脚本会先检查备份是否匹配；如果备份丢了或版本不对，在 Steam 里验证游戏文件完整性即可恢复。
+退出游戏，双击 `卸载.bat` 即可恢复英文。脚本会先检查备份是否匹配；如果备份丢失或版本不对，在 Steam 里验证游戏文件完整性即可恢复。
 
 ## 游戏更新后
 
@@ -119,7 +117,7 @@ python mod_src/tools/update_repack.py --game "D:\Games\Steam\steamapps\common\Is
 python mod_src/tools/update_repack.py --game "D:\Games\Steam\steamapps\common\Isle of Reveries" --no-install
 ```
 
-如果新版游戏修改了资源图片，重建脚本会停止，避免用旧坐标覆盖新版图片。
+若新版游戏修改了资源图片，重建脚本会停止，避免用旧坐标覆盖新版图片。
 
 ## 当前版本与验证
 
@@ -132,7 +130,7 @@ python mod_src/tools/update_repack.py --game "D:\Games\Steam\steamapps\common\Is
 
 2026-10-05 适配版已进行资源、字形及安装流程检查，尚未完成新版实机游玩验证。
 
-部分图片文字和制作人员姓名仍保留英文；标题画面的大型 `Isle of Reveries` Logo 也保留原样。官方后续新增或改写的句子如果尚未加入词典，会原样显示英文，不会显示乱码或空白。
+部分图片文字和制作人员姓名仍保留英文；标题画面的大型 `Isle of Reveries` Logo 也保留原样。官方后续新增或改写的句子如果尚未加入词典，会原样显示英文。
 
 ## 项目结构与发布内容
 
