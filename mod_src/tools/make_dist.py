@@ -285,7 +285,7 @@ Steam 更新会整体覆盖 www\assets.dat，补丁会被冲掉（游戏回到�
   * 13 种运行时动态拼接的数量/进度句型已通过受限模板汉化。
   * 2026-10-05 专业译文审校修正版：修复85处确认词库问题，采纳6处语境润色，
     统一5处未明长幼的兄弟称谓；Timelocked Villa统一为“时锁别墅”；控制页按用户最新要求改为“键盘”，将ARROWS改为“方向键”，跳跃键显示为同色黑色SPA，同步重绘夸蒂兹名牌。
-    原文未明的5处兄弟长幼仍待核实，暂用“兄弟”。完整变更见审校修复记录。
+    原文未明的5处兄弟长幼仍待核实，暂用“兄弟”。
 * 替换资源清单记录资源包内每项变化的原版/汉化 SHA-256；更新后若原图
   发生变化，自动重建会先停止，防止旧贴图坐标误盖新版美术。
 
@@ -312,10 +312,8 @@ mod_src\ ................ 源码与工具（可自行修改后重新构建；需
     tools\build_cn_patch.py      一键重新构建本补丁（读 trans\dict.json）
     tools\update_repack.py       官方更新后重建
     tools\verify_glyphs.py       逐格字形校验（对照字体原件）
-    tools\normalize_terms.py     术语归一
     tools\make_dist.py          生成 dist 交付目录
     trans\dict.json              英中对照表（{dict_entries} 条，可自行修订）
-    trans\dict_round1.json       最初的机翻版本（留档对比）
     fonts\                       所用开源像素字体（Fusion Pixel Font）及许可证 OFL
 """
 
@@ -406,10 +404,9 @@ def main():
             continue
         if fn.endswith((".py", ".js", ".txt")):
             shutil.copy(os.path.join(ROOT, "tools", fn), os.path.join(ms, "tools", fn))
-    for fn in ("dict.json", "dict_round1.json"):
-        p = os.path.join(ROOT, "trans", fn)
-        if os.path.exists(p):
-            shutil.copy(p, os.path.join(ms, "trans", fn))
+    dictionary = os.path.join(ROOT, "trans", "dict.json")
+    if os.path.exists(dictionary):
+        shutil.copy(dictionary, os.path.join(ms, "trans", "dict.json"))
     for fn in sorted(os.listdir(os.path.join(ROOT, "fonts"))):
         p = os.path.join(ROOT, "fonts", fn)
         if os.path.isfile(p) and fn.endswith((".bdf", ".txt", ".md")):

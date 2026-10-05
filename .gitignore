@@ -17,3 +17,8 @@ mod_src/trans/bundle_order.json
 # Local browser captures and generated release/test sandboxes.
 .playwright-mcp/
 release/
+
+# Local regression tests and generated player instructions.
+mod_src/tests/
+/README_单机汉化说明.txt
+/说明.txt

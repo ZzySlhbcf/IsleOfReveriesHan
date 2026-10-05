@@ -42,10 +42,10 @@
 Steam 更新可能会整体替换 `www/assets.dat`，使游戏恢复英文。更新后不要直接运行旧版 `安装.bat`，请按下面的方式重新生成适配新版资源的补丁：
 
 1. 退出游戏，并确认 Steam 已完成更新。
-2. 安装 Python 3 和 Pillow：
+2. 安装 Python 3，以及 Pillow 和 NumPy：
 
    ```powershell
-   python -m pip install pillow
+   python -m pip install pillow numpy
    ```
 
 3. 修改 `官方更新后重建.bat` 顶部的 `GAME=` 路径（如有需要）。
@@ -61,14 +61,13 @@ Steam 更新可能会整体替换 `www/assets.dat`，使游戏恢复英文。更
 mod_src/
 ├── fonts/                 # 像素字体与各字体的许可证
 ├── trans/dict.json        # 英中译文字典
-├── tools/
-│   ├── c3bundle.py        # Construct 3 资源包解包/重打包
-│   ├── build_cn_patch.py  # 生成中文字体、词典钩子和资源包
-│   ├── make_dist.py       # 生成根目录交付文件
-│   ├── update_repack.py   # 以官方新版资源为底重建补丁
-│   ├── validate_dist.py   # 资源包完整性校验
-│   └── verify_glyphs.py   # 字形像素校验
-└── tests/                 # 资源清单、译文审校和排版回归测试
+└── tools/
+    ├── c3bundle.py        # Construct 3 资源包解包/重打包
+    ├── build_cn_patch.py  # 生成中文字体、词典钩子和资源包
+    ├── make_dist.py       # 生成交付目录与安装脚本
+    ├── update_repack.py   # 以官方新版资源为底重建补丁
+    ├── validate_dist.py   # 资源包完整性校验
+    └── verify_glyphs.py   # 字形像素校验
 ```
 
 官方更新后的自动重建命令也可以在命令行运行：
@@ -83,7 +82,7 @@ python mod_src/tools/update_repack.py --game "D:\Games\Steam\steamapps\common\Is
 python mod_src/tools/update_repack.py --game "D:\Games\Steam\steamapps\common\Isle of Reveries" --no-install
 ```
 
-重建流程需要 Python 3、Pillow；校验运行时 JavaScript 时还需要 Node.js。运行回归测试还需要 NumPy，可执行 `python -m pip install numpy` 安装。新版本游戏如果修改了资源图片，脚本会在检测到原图变化时停止，以避免沿用旧坐标覆盖新版美术资源。
+重建流程需要 Python 3、Pillow 和 NumPy；校验运行时 JavaScript 时还需要 Node.js。新版本游戏如果修改了资源图片，脚本会在检测到原图变化时停止，以避免沿用旧坐标覆盖新版美术资源。
 
 ## 当前版本与验证
 
@@ -108,19 +107,18 @@ python mod_src/tools/update_repack.py --game "D:\Games\Steam\steamapps\common\Is
 - `官方更新后重建.bat`：以官方新版资源重建并安装；
 - `版本.txt`：当前补丁版本、文件大小与 MD5；
 - `替换资源清单.json`：被替换资源的哈希清单；
-- `README_单机汉化说明.txt`、`说明.txt`：面向玩家的详细中文说明；
-- `实际效果预览_*.png`：部分界面效果预览；
-- `mod_src/`：词典、字体、构建工具和测试。
+- `docs/images/`：README 中使用的界面预览；
+- `mod_src/`：词典、字体及重建必需的工具。
 
 ## 界面预览
 
-![地图标记](实际效果预览_地图标记.png)
+![地图标记](docs/images/map-markers.png)
 
-![控制设置](实际效果预览_控制页.png)
+![控制设置](docs/images/controls.png)
 
 ## 许可证与第三方内容
 
-本项目原创构建工具、测试代码、中文译文和项目文档采用 [GNU Lesser General Public License v2.1 (LGPL-2.1)](LICENSE) 发布。
+本项目原创构建工具、中文译文和项目文档采用 [GNU Lesser General Public License v2.1 (LGPL-2.1)](LICENSE) 发布。
 
 `mod_src/fonts/` 中的字体及其修改和再分发条件以各字体目录内的许可证为准，相关文本位于 `mod_src/fonts/LICENSES/`。游戏本体、原始资源和商标归其权利人所有；本仓库不重新授权游戏本体内容。请支持游戏原作者，并遵守游戏及字体的适用许可条款。
 
