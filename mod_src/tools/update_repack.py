@@ -109,6 +109,65 @@ def check_art_inputs(bundle):
                                 for key in new_frames)):
                     print("  已逐帧复核本次官方更新的 5 张图集；移除一帧旧存档转场，其他画面未变。")
                     return
+        # September 29 bundle (reviewed September 30): five atlases were
+        # repacked, with one new anonymous MineGhost dialogue portrait (???).
+        # Keep the new artwork intact and require identical existing frames.
+        if (old_md5, md5(bundle)) == (
+            "1819ebb21f6d71f873c5d6ba73126642",
+            "926fe43e69dae4fda2455ce5052e5a8c",
+        ) and set(changed) == {
+            "images/buildmenu_pages-sheet0.webp",
+            "images/dialoguebox-sheet0.webp",
+            "images/dungeon_title-sheet0.webp",
+            "images/fileselect_cursor-sheet0.webp",
+            "images/maps_sprite-sheet0.webp",
+        }:
+            from resource_manifest import atlas_frames_match_delta
+            previous = bundle + ".cn-backup"
+            added = {("images/dialoguebox-sheet0.webp",
+                      "DialogueBox", "MineGhost", 0)}
+            if (os.path.isfile(previous) and md5(previous) == old_md5
+                    and atlas_frames_match_delta(previous, bundle, changed,
+                                                 added=added)):
+                print("  已逐帧复核本次官方更新的 5 张图集；保留新增矿洞幽灵肖像及匿名名牌，其他画面未变。")
+                return
+        # September 30 afternoon: reviewed a renamed dungeon map and one
+        # 8x8 room cell on WorldMap_2. Chinese footer coordinates are intact.
+        if (old_md5, md5(bundle)) == (
+            "926fe43e69dae4fda2455ce5052e5a8c",
+            "936aaed59f17c1b53eb5b1b2563a51aa",
+        ) and set(changed) == {
+            "images/buildmenu_pages-sheet0.webp",
+            "images/dialoguebox-sheet0.webp",
+            "images/maps_sprite-sheet0.webp",
+        }:
+            from resource_manifest import atlas_frames_match_delta
+            previous = bundle + ".cn-backup"
+            atlas = "images/maps_sprite-sheet0.webp"
+            if (os.path.isfile(previous) and md5(previous) == old_md5
+                    and atlas_frames_match_delta(
+                        previous, bundle, changed,
+                        removed={(atlas, "Maps_Sprite", "DungeonCrypt", 0)},
+                        added={(atlas, "Maps_Sprite", "Dungeon2_HasMap2", 0)},
+                        changed_regions={(atlas, "Maps_Sprite", "WorldMap_2", 0):
+                                         [(24, 16, 32, 24)]})):
+                print("  已复核 9 月 30 日下午更新：保留新版地图格子与地牢地图，汉化文字区域未变。")
+                return
+        # October 5: reviewed cross-atlas moves (same frame pixels/anchors),
+        # enlarged dungeon maps (112x88 -> 144x96), Hidden map and the new
+        # overview/pin/legend UI. Repaint uses current project frame geometry.
+        # Exact whole-bundle hashes keep later content changes behind review.
+        if (old_md5, md5(bundle)) == (
+            "936aaed59f17c1b53eb5b1b2563a51aa",
+            "75ebd11d427862ac41df62eee4057650",
+        ) and set(changed) == {
+            "images/dialoguebox-sheet0.webp", "images/maps_sprite-sheet0.webp",
+            "images/shared-1-sheet0.webp", "images/shared-3-sheet0.webp",
+            "images/shared-4-sheet1.webp", "images/shared-9-sheet6.webp",
+            "images/worldmapbg-sheet0.webp",
+        }:
+            print("  已复核 10 月 5 日更新：适配新版地图图例与标记界面，保留扩大的地牢地图和新版图集位置。")
+            return
         old_bundle = next((path for path in sorted(
             (bundle + ".cn-backup", *[os.path.join(os.path.dirname(bundle), name)
               for name in os.listdir(os.path.dirname(bundle))
@@ -122,8 +181,12 @@ def check_art_inputs(bundle):
             print("[停止] 官方更新改动了以下汉化贴图的英文原图：")
             for name in changed:
                 print("  ", name)
-            sys.exit("原图画面变化或缺少可供逐帧对照的旧英文包；"
-                     "请检查文字坐标后再重建。游戏文件与备份均未改动。")
+            if old_bundle:
+                print("  已找到旧英文备份，但新版帧内容或帧名称发生变化，不能按图集重排自动放行。")
+            else:
+                print("  未找到与本补丁匹配的旧英文备份，无法逐帧检查新版图集。")
+            sys.exit("当前游戏更新尚未完成贴图适配，请使用适配该游戏版本的新补丁。"
+                     "游戏文件与备份均未改动。")
     print(f"  已检查替换资源清单中 {len(inventory['modified']) - 2} 张英文原图。")
 
 
@@ -192,9 +255,17 @@ def run(cmd, cwd, capture=False, env=None):
     # 不指定 encoding 的话 Python 会拿系统 ANSI(GBK) 去解 UTF-8，
     # 中文一多就抛 UnicodeDecodeError 把校验结果吞掉。errors="replace"
     # 保证最坏情况也只是显示成问号，不会让校验步骤整个挂掉。
-    r = subprocess.run(cmd, cwd=cwd, capture_output=capture, env=env,
-                       text=capture, encoding="utf-8" if capture else None,
-                       errors="replace" if capture else None)
+    if not capture:
+        # The batch console uses GBK, while builders deliberately output UTF-8.
+        # Decode child output before the parent's configured encoding prints it.
+        with subprocess.Popen(cmd, cwd=cwd, env=env, stdout=subprocess.PIPE,
+                              stderr=subprocess.STDOUT, text=True,
+                              encoding="utf-8", errors="replace") as process:
+            for line in process.stdout:
+                print(line, end="", flush=True)
+            return process.wait()
+    r = subprocess.run(cmd, cwd=cwd, capture_output=True, env=env,
+                       text=True, encoding="utf-8", errors="replace")
     if capture:
         tail = "\n".join(((r.stdout or r.stderr or "").strip().splitlines())[-5:])
         print(tail)

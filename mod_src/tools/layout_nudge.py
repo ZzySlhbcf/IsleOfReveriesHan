@@ -52,3 +52,32 @@ def nudge_flush_texts(project, dy=DY):
                             moved.append((lay[0], lyr[0], b2[1] + b2[4], b[1]))
                             break
     return moved
+
+
+def adjust_save_summary(project):
+    """Give 11px save-summary rows a 3px gap; start from vanilla coordinates."""
+    tid = next(i for i, obj in enumerate(project[3])
+               if isinstance(obj, list) and obj and obj[0] == "TitleTexts")
+    changed = []
+    for layout in project[5]:
+        if layout[0] != "Title Screen":
+            continue
+        for container in layout[10:]:
+            if not isinstance(container, list):
+                continue
+            for layer in container:
+                if not (isinstance(layer, list) and len(layer) > 14
+                        and layer[0] == "LoadLayer" and isinstance(layer[14], list)):
+                    continue
+                for inst in layer[14]:
+                    if not (isinstance(inst, list) and len(inst) > 5 and inst[1] == tid):
+                        continue
+                    box = inst[0]
+                    old = (box[1], box[4])
+                    if box[1] in (56, 104):
+                        box[1] += 6
+                    box[4] = max(box[4], 11)
+                    if old != (box[1], box[4]):
+                        changed.append({"uid": inst[2], "before": old,
+                                        "after": (box[1], box[4])})
+    return changed

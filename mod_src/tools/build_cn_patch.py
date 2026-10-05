@@ -275,6 +275,7 @@ def main(use_stub=False):
 
     # --- 5b) 版面微调：名字↔说明 的箱子紧贴 0px，把下面的多行框下移 3px --------
     import layout_nudge
+    print("存档摘要排版调整:", layout_nudge.adjust_save_summary(project))
     # 静态坐标会被游戏运行时重新算出来（实测无效），改成运行时钩子里按实例下移，
     # 所以这里保持原版坐标不动（DY=0）。
     moved = layout_nudge.nudge_flush_texts(project, 0)

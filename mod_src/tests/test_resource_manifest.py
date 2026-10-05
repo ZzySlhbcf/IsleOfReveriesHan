@@ -13,19 +13,35 @@ sys.path.insert(0, os.path.join(ROOT, "mod_src", "tools"))
 
 from resource_manifest import (EXPECTED_CHANGED, IMAGE_LABELS,  # noqa: E402
                                changed_original_images, create_manifest,
-                               atlas_frame_pixels, unchanged_atlas_frames)
+                               atlas_frame_pixels, unchanged_atlas_frames,
+                               atlas_frames_match_delta, bundle_md5, bundle_entries)
 from c3bundle import read_directory  # noqa: E402
-from audit_localization import read_entry, natural_event_misses, translator  # noqa: E402
-from patch_baked_menus import dialogue_speaker_names, HIDDEN_NAMES  # noqa: E402
+from audit_localization import (read_entry, natural_event_misses, translator,
+                                ARROW_LITERAL, decode_js_string)  # noqa: E402
+from patch_baked_menus import (dialogue_speaker_names, HIDDEN_NAMES,
+                               MAP_PIN_NAMES, MAP_SAVE_LABEL, draw_text, FONT, PAPER)  # noqa: E402
 from bdf import Bdf  # noqa: E402
 from build_cn_patch import CELL_BY_TYPE, charsets_of, FALLBACK  # noqa: E402
+
+
+def historical_vanilla(expected_md5):
+    """Find preserved official bundles for tests of historical update deltas."""
+    previous = os.environ.get("CN_PREVIOUS_VANILLA_BUNDLE")
+    if not previous:
+        return None
+    directory = os.path.dirname(previous)
+    candidates = [previous] + [os.path.join(directory, name)
+                               for name in reversed(sorted(os.listdir(directory)))
+                               if name.startswith("assets.dat.cn-backup")]
+    return next((path for path in dict.fromkeys(candidates)
+                 if os.path.isfile(path) and bundle_md5(path) == expected_md5), None)
 
 
 class ManifestTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.vanilla = os.environ.get("CN_VANILLA_BUNDLE")
-        cls.patched = os.path.join(ROOT, "www", "assets.dat")
+        cls.patched = os.environ.get("CN_PATCH_BUNDLE") or os.path.join(ROOT, "www", "assets.dat")
         if not cls.vanilla or not os.path.isfile(cls.vanilla):
             raise unittest.SkipTest("Set CN_VANILLA_BUNDLE to the English game bundle")
         cls.inventory = create_manifest(cls.vanilla, cls.patched)
@@ -60,14 +76,13 @@ class ManifestTest(unittest.TestCase):
         previous = os.environ.get("CN_PREVIOUS_VANILLA_BUNDLE")
         if not previous or not os.path.isfile(previous):
             self.skipTest("Set CN_PREVIOUS_VANILLA_BUNDLE to previous English bundle")
-        # Compare the two historically repacked atlases; newly translated
-        # portraits are audited separately by test_anteater_portrait_and_countdown.
-        changed_all = changed_original_images(
-            create_manifest(previous, self.patched), self.vanilla)
-        repacked = ["images/fileselect_cursor-sheet0.webp",
-                    "images/maps_sprite-sheet0.webp"]
-        self.assertTrue(set(repacked).issubset(changed_all))
-        changed = repacked
+        old_images = bundle_entries(previous, IMAGE_LABELS)
+        current_images = bundle_entries(self.vanilla, IMAGE_LABELS)
+        changed_all = [name for name in old_images.keys() & current_images.keys()
+                       if old_images[name] != current_images[name]]
+        changed = [name for name in changed_all
+                   if unchanged_atlas_frames(previous, self.vanilla, {name})]
+        self.assertTrue(changed, "Update should include at least one unchanged repacked atlas")
         self.assertTrue(unchanged_atlas_frames(previous, self.vanilla, changed))
         base = atlas_frame_pixels(previous, changed)
         self.assertTrue(base)
@@ -313,7 +328,8 @@ class ManifestTest(unittest.TestCase):
                    "images/maps_sprite-sheet0.webp",
                    "images/shared-9-sheet6.webp"}
         before = os.environ.get("CN_PREVIOUS_VANILLA_BUNDLE")
-        if before and os.path.isfile(before):
+        if (before and os.path.isfile(before)
+                and bundle_md5(before) == "06e9ffd80556cef82791cc1a84d0557d"):
             old = atlas_frame_pixels(before, changed)
             current = atlas_frame_pixels(self.vanilla, changed)
             self.assertEqual(set(old) - set(current),
@@ -326,6 +342,236 @@ class ManifestTest(unittest.TestCase):
         self.assertEqual(set(vanilla_frames), set(patched_frames))
         self.assertNotIn(("images/shared-9-sheet6.webp",
                           "FileSelectSwipe", "Animation 1", 0), patched_frames)
+
+    def test_september_30_mine_dialogue_and_anonymous_portrait(self):
+        image = "images/dialoguebox-sheet0.webp"
+        key = (image, "DialogueBox", "MineGhost", 0)
+        original = atlas_frame_pixels(self.vanilla, {image})
+        localized = atlas_frame_pixels(self.patched, {image})
+        self.assertIn(key, original)
+        self.assertEqual(original[key], localized[key])
+        previous = historical_vanilla("1819ebb21f6d71f873c5d6ba73126642")
+        morning = historical_vanilla("926fe43e69dae4fda2455ce5052e5a8c")
+        if not previous or not morning:
+            self.skipTest("Historical September 28/29 English bundles are unavailable")
+        old_runtime = read_entry(previous, "scripts/c3runtime.js").decode("utf-8")
+        runtime = read_entry(morning, "scripts/c3runtime.js").decode("utf-8")
+        literal_values = lambda text: {
+            decode_js_string(match.group(1)) for match in ARROW_LITERAL.finditer(text)
+        }
+        additions = literal_values(runtime) - literal_values(old_runtime)
+        with open(os.path.join(ROOT, "mod_src", "trans", "dict.json"),
+                  encoding="utf-8") as source:
+            dictionary = json.load(source)
+        translate = translator(dictionary)
+        self.assertEqual({text for text in additions if translate(text) == text},
+                         {"MineGhost"})  # This animation ID is game logic.
+        self.assertEqual(len(additions), 26)  # 24 new lines, two animation IDs.
+        patched_runtime = read_entry(self.patched, "scripts/c3runtime.js").decode("utf-8")
+        for text in additions - {"MineGhost"}:
+            self.assertIn(json.dumps(text, ensure_ascii=False) + ":" +
+                          json.dumps(dictionary[text], ensure_ascii=False), patched_runtime)
+
+    def test_reviewed_mine_portrait_delta_rejects_other_art_changes(self):
+        import copy
+        from unittest.mock import patch
+
+        previous = historical_vanilla("1819ebb21f6d71f873c5d6ba73126642")
+        morning = historical_vanilla("926fe43e69dae4fda2455ce5052e5a8c")
+        if not previous or not morning:
+            self.skipTest("Historical September 28/29 English bundles are unavailable")
+        changed = {"images/buildmenu_pages-sheet0.webp",
+                   "images/dialoguebox-sheet0.webp",
+                   "images/dungeon_title-sheet0.webp",
+                   "images/fileselect_cursor-sheet0.webp",
+                   "images/maps_sprite-sheet0.webp"}
+        added = {("images/dialoguebox-sheet0.webp", "DialogueBox", "MineGhost", 0)}
+        self.assertFalse(unchanged_atlas_frames(previous, morning, changed))
+        self.assertTrue(atlas_frames_match_delta(previous, morning, changed,
+                                                added=added))
+        before = atlas_frame_pixels(previous, changed)
+        after = atlas_frame_pixels(morning, changed)
+        damaged = copy.copy(after)
+        key = next(iter(before))
+        size, pixels, attrs = damaged[key]
+        damaged[key] = (size, bytes([pixels[0] ^ 255]) + pixels[1:], attrs)
+        with patch("resource_manifest.atlas_frame_pixels", side_effect=[before, damaged]):
+            self.assertFalse(atlas_frames_match_delta(previous, morning, changed,
+                                                     added=added))
+        unexpected = copy.copy(after)
+        unexpected[(key[0], key[1], "Unreviewed", 0)] = after[key]
+        with patch("resource_manifest.atlas_frame_pixels", side_effect=[before, unexpected]):
+            self.assertFalse(atlas_frames_match_delta(previous, morning, changed,
+                                                     added=added))
+
+    def test_september_30_afternoon_preserves_updated_map(self):
+        atlas = "images/maps_sprite-sheet0.webp"
+        original = atlas_frame_pixels(self.vanilla, {atlas})
+        patched = atlas_frame_pixels(self.patched, {atlas})
+        key = (atlas, "Maps_Sprite", "WorldMap_2", 0)
+        size, pixels, attrs = original[key]
+        new_size, new_pixels, new_attrs = patched[key]
+        self.assertEqual((size, attrs), (new_size, new_attrs))
+        old = Image.frombytes("RGBA", size, pixels)
+        new = Image.frombytes("RGBA", new_size, new_pixels)
+        # All official map cells survive; only the existing footer is repainted.
+        self.assertEqual(old.crop((0, 0, 128, 136)).tobytes(),
+                         new.crop((0, 0, 128, 136)).tobytes())
+        self.assertNotEqual(old.crop((0, 136, 128, 144)).tobytes(),
+                            new.crop((0, 136, 128, 144)).tobytes())
+        renamed = (atlas, "Maps_Sprite", "Dungeon2_HasMap2", 0)
+        self.assertIn(renamed, original)
+        self.assertEqual(original[renamed], patched[renamed])
+        # October 5 moves the official DungeonCrypt frame back to sheet 0.
+        crypt = (atlas, "Maps_Sprite", "DungeonCrypt", 0)
+        if crypt in original:
+            self.assertEqual(original[crypt], patched[crypt])
+        text = "Wow! Zelen marked locations of all unplanted Goddess Soil on Lief's map!"
+        with open(os.path.join(ROOT, "mod_src", "trans", "dict.json"),
+                  encoding="utf-8") as source:
+            dictionary = json.load(source)
+        self.assertIn(text, read_entry(self.vanilla, "scripts/c3runtime.js").decode("utf-8"))
+        self.assertIn(json.dumps(text, ensure_ascii=False) + ":" +
+                      json.dumps(dictionary[text], ensure_ascii=False),
+                      read_entry(self.patched, "scripts/c3runtime.js").decode("utf-8"))
+
+    def test_afternoon_map_guard_rejects_unreviewed_pixels_and_attributes(self):
+        import copy
+        from unittest.mock import patch
+
+        previous = historical_vanilla("926fe43e69dae4fda2455ce5052e5a8c")
+        afternoon = historical_vanilla("936aaed59f17c1b53eb5b1b2563a51aa")
+        if not previous or not afternoon:
+            self.skipTest("September 29 English bundle is unavailable")
+        changed = {"images/buildmenu_pages-sheet0.webp",
+                   "images/dialoguebox-sheet0.webp", "images/maps_sprite-sheet0.webp"}
+        atlas = "images/maps_sprite-sheet0.webp"
+        key = (atlas, "Maps_Sprite", "WorldMap_2", 0)
+        policy = dict(removed={(atlas, "Maps_Sprite", "DungeonCrypt", 0)},
+                      added={(atlas, "Maps_Sprite", "Dungeon2_HasMap2", 0)},
+                      changed_regions={key: [(24, 16, 32, 24)]})
+        self.assertFalse(atlas_frames_match_delta(previous, afternoon, changed))
+        self.assertTrue(atlas_frames_match_delta(previous, afternoon, changed, **policy))
+        before = atlas_frame_pixels(previous, changed)
+        after = atlas_frame_pixels(afternoon, changed)
+        damaged = copy.copy(after)
+        size, pixels, attrs = damaged[key]
+        # An unexpected footer change is outside the reviewed 8x8 room cell.
+        offset = (136 * size[0] + 8) * 4
+        damaged[key] = (size, pixels[:offset] + bytes([pixels[offset] ^ 255]) +
+                        pixels[offset + 1:], attrs)
+        with patch("resource_manifest.atlas_frame_pixels", side_effect=[before, damaged]):
+            self.assertFalse(atlas_frames_match_delta(previous, afternoon, changed, **policy))
+        damaged = copy.copy(after)
+        damaged[key] = (size, pixels, attrs + ["unreviewed anchor"])
+        with patch("resource_manifest.atlas_frame_pixels", side_effect=[before, damaged]):
+            self.assertFalse(atlas_frames_match_delta(previous, afternoon, changed, **policy))
+
+    def test_october_5_map_ui_preserves_art_and_all_animation_frames(self):
+        names = {"images/shared-0-sheet0.webp", "images/shared-0-sheet1.webp",
+                 "images/shared-9-sheet7.webp", "images/pinselect-sheet0.webp"}
+        original = atlas_frame_pixels(self.vanilla, names)
+        localized = atlas_frame_pixels(self.patched, names)
+        self.assertEqual(original.keys(), localized.keys())
+        expected = {}
+        for key, (size, pixels, attrs) in original.items():
+            obj, anim, number = key[1:]
+            regions = []
+            if obj == "NewMapOverview":
+                regions = [(16, 136, 144, 144)]
+            elif obj in ("NewMap_Legend", "WorldMapLegend"):
+                rows = 11 if obj == "WorldMapLegend" else (10 if anim == "HasSoil" else 9)
+                regions = [(8, 4, 56, 12), (16, 16, 60, 16 + rows * 8)]
+            elif obj == "PinSelect":
+                regions = [(4, 3, 52, 11)]
+            elif obj in ("FindLief", "ZoomCancel"):
+                regions = [(4, 7, 44, 14)]
+            self.assertEqual((size, attrs), (localized[key][0], localized[key][2]), key)
+            if not regions:
+                self.assertEqual(original[key], localized[key], key)
+                continue
+            expected[key] = regions
+            old = Image.frombytes("RGBA", size, pixels)
+            new = Image.frombytes("RGBA", size, localized[key][1])
+            for region in regions:
+                self.assertNotEqual(old.crop(region).tobytes(), new.crop(region).tobytes(), key)
+                self.assertTrue(any(new.getpixel((x, y)) == (7, 24, 33, 255)
+                                    for y in range(region[1], region[3])
+                                    for x in range(region[0], region[2])), key)
+                old.paste((0, 0, 0, 0), region)
+                new.paste((0, 0, 0, 0), region)
+            self.assertEqual(old.tobytes(), new.tobytes(), key)
+        self.assertEqual(len(expected), 20)
+        counts = Counter(key[1] for key in expected)
+        self.assertEqual(counts["PinSelect"], 12)
+        self.assertEqual(counts["NewMapOverview"], 2)
+
+    def test_october_5_new_terms_follow_existing_translation(self):
+        with open(os.path.join(ROOT, "mod_src", "trans", "dict.json"),
+                  encoding="utf-8") as source:
+            dictionary = json.load(source)
+        self.assertEqual(dictionary["Pin: Tablet"], "标记：" + dictionary["Tablet"])
+        soil_context = dictionary["Wow! Zelen marked locations of all unplanted Goddess Soil on Lief's map!"]
+        self.assertIn("女神土壤", soil_context)
+        self.assertEqual(dictionary["Pin: Soil"], "标记：女神土壤")
+        self.assertEqual(dictionary["Pin: Chest"], "标记：" +
+                         dictionary["Opening Chest"].removeprefix("打开"))
+        self.assertEqual(dictionary["Pin: Petal"], "标记：" +
+                         dictionary["GODDESS PETALS"])
+        self.assertEqual(MAP_SAVE_LABEL, "存档点")
+        self.assertEqual(dictionary["Pin: X"], "标记：X")
+        self.assertEqual(MAP_PIN_NAMES["Pin6"], "X")
+        for pin, term in zip(range(1, 7), ("Star", "Petal", "Soil", "Tablet", "Chest", "X")):
+            self.assertEqual("标记：" + MAP_PIN_NAMES[f"Pin{pin}"], dictionary[f"Pin: {term}"])
+        # Check the shipped pixels, including both blinking frames per pin.
+        frames = atlas_frame_pixels(self.patched, {"images/pinselect-sheet0.webp",
+                                    "images/shared-0-sheet1.webp",
+                                    "images/shared-9-sheet7.webp"})
+        font = Bdf(FONT)
+        checked = 0
+        for key, (size, pixels, attrs) in frames.items():
+            labels = []
+            if key[1] == "PinSelect":
+                labels = [(MAP_PIN_NAMES[key[2]], (4, 3, 48, 8), True)]
+            elif key[1] == "WorldMapLegend":
+                labels = [(MAP_SAVE_LABEL, (16, 16, 44, 8), False),
+                          (MAP_PIN_NAMES["Pin3"], (16, 64, 44, 8), False),
+                          (MAP_PIN_NAMES["Pin2"], (16, 72, 44, 8), False)]
+            elif key[1] == "NewMap_Legend":
+                labels = [(MAP_SAVE_LABEL, (16, 16, 44, 8), False)]
+                if key[2] == "HasSoil":
+                    labels.append((MAP_PIN_NAMES["Pin3"], (16, 56, 44, 8), False))
+            actual = Image.frombytes("RGBA", size, pixels)
+            for text, (x, y, w, h), centered in labels:
+                expected = Image.new("RGBA", (w, h), PAPER)
+                start = (w - len(text) * 8) // 2 if centered else 0
+                draw_text(expected, font, text, start, 0, w - start)
+                self.assertEqual(actual.crop((x, y, x + w, y + h)).tobytes(),
+                                 expected.tobytes(), (key, text))
+                checked += 1
+        self.assertEqual(checked, 21)
+        before = dictionary["The mine is labyrinthian and complex."]
+        after = dictionary["The mine is labyrinthian and complex, to be sure."]
+        self.assertEqual(after.replace("确实", ""), before)
+        translate = translator(dictionary)
+        for value in ("Pin1", "Pin2", "Pin3", "Pin4", "Pin5", "Pin6",
+                      "FindLief", "ZoomCancel", "Soil_Hidden", "Tablet_CH_16"):
+            self.assertEqual(translate(value), value)
+
+    def test_october_5_dungeon_maps_survive_new_geometry(self):
+        names = {"images/maps_sprite-sheet0.webp"}
+        original = atlas_frame_pixels(self.vanilla, names)
+        localized = atlas_frame_pixels(self.patched, names)
+        dungeons = {key for key in original if key[1] == "Maps_Sprite"
+                    and key[2].startswith("Dungeon")}
+        self.assertEqual(len(dungeons), 34)
+        for key in dungeons:
+            self.assertEqual(original[key][0], (144, 96), key)
+            self.assertEqual(original[key], localized[key], key)
+        self.assertEqual(original[("images/maps_sprite-sheet0.webp",
+                                   "Maps_Sprite", "Hidden", 0)],
+                         localized[("images/maps_sprite-sheet0.webp",
+                                    "Maps_Sprite", "Hidden", 0)])
 
     def test_official_update_dialogue_coverage(self):
         runtime = read_entry(self.vanilla, "scripts/c3runtime.js").decode("utf-8")

@@ -2,6 +2,7 @@ __pycache__/
 *.py[cod]
 *.tmp
 *.bak
+*.log
 .DS_Store
 
 # Rebuild intermediates; the distributable at repository root is tracked.
@@ -12,3 +13,7 @@ mod_src/extracted_prev/
 
 mod_src/trans/build_report.json
 mod_src/trans/bundle_order.json
+
+# Local browser captures and generated release/test sandboxes.
+.playwright-mcp/
+release/

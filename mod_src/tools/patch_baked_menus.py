@@ -36,8 +36,13 @@ WORLD_MAP_NAMES = {
 }
 DUNGEON_NAMES = {
     "1": "朝圣者圣殿", "2": "蔓生神龛", "3": "巨龙遗骸",
-    "4": "时间锁定别墅", "5": "雪覆矿场", "6": "岛屿深处",
+    "4": "时锁别墅", "5": "雪覆矿场", "6": "岛屿深处",
 }
+
+# Map symbols use the established collectible and planting-location names.
+MAP_SAVE_LABEL = "存档点"
+MAP_PIN_NAMES = {"Pin1": "星星", "Pin2": "女神花瓣", "Pin3": "女神土壤",
+                 "Pin4": "石碑", "Pin5": "宝箱", "Pin6": "X"}
 
 # Speaker names are part of DialogueBox's artwork. Most animation IDs match
 # the visible English text; these entries identify the frames that do not.
@@ -53,7 +58,7 @@ DIALOGUE_NAME_KEYS = {
 # Portrait-only, anonymous and unrevealed-name frames contain no English name.
 DIALOGUE_UNNAMED = {
     "Default", "Hidden", "Notebook", "Ghost", "Hunter", "HungryMonster",
-    "Backer_ArmSnake_Husk",
+    "Backer_ArmSnake_Husk", "MineGhost",
 }
 DIALOGUE_NAME_OVERRIDE = {
     "BigTalkingTree": "大树", "SmallTalkingTree": "小树",
@@ -265,6 +270,51 @@ def repaint(project, extracted, dev):
         draw_text(img, font, "幻想之岛", 44, 0, 40)
     frame("Maps_Sprite", "WorldMap_All", edit_all_map)
 
+    # October 5 map UI. Binding glyphs are separate objects: retain their
+    # blank cells, all map pixels, icon cells and pin selection animations.
+    for animation in types["NewMapOverview"][7]:
+        def edit_new_overview(img, name=animation[0]):
+            if img.size != (160, 144):
+                raise ValueError(f"unexpected new map overview: {img.size}")
+            img.paste(PAPER, (16, 136, 144, 144))
+            if name == "1":
+                draw_text(img, font, "缩放：", 20, 136, 24)
+                draw_text(img, font, "标记：", 68, 136, 24)
+                draw_text(img, font, "图例：", 108, 136, 24)
+            elif name == "2":
+                draw_text(img, font, "放置标记：", 32, 136, 40)
+                draw_text(img, font, "取消：", 100, 136, 24)
+            else:
+                raise ValueError(f"unreviewed overview animation: {name}")
+        frame("NewMapOverview", animation[0], edit_new_overview)
+
+    for type_name, text in (("FindLief", "利夫："), ("ZoomCancel", "返回：")):
+        frame(type_name, "Animation 1", label(text, (4, 7, 40, 7), align="center"))
+
+    for animation in types["PinSelect"][7]:
+        for number in range(len(animation[7])):
+            frame("PinSelect", animation[0],
+                  label(MAP_PIN_NAMES[animation[0]], (4, 3, 48, 8), align="center"),
+                  frame_number=number)
+
+    for type_name in ("WorldMapLegend", "NewMap_Legend"):
+        for animation in types[type_name][7]:
+            if type_name == "WorldMapLegend":
+                rows = [MAP_SAVE_LABEL, "地牢", "歌曲", "电话", "果汁", "石碑",
+                        MAP_PIN_NAMES["Pin3"], MAP_PIN_NAMES["Pin2"],
+                        MAP_PIN_NAMES["Pin1"], MAP_PIN_NAMES["Pin5"],
+                        MAP_PIN_NAMES["Pin6"]]
+            else:
+                rows = [MAP_SAVE_LABEL, "地牢", "歌曲", "电话", "石碑"]
+                if animation[0] == "HasSoil":
+                    rows.append(MAP_PIN_NAMES["Pin3"])
+                rows.extend(["果汁", "铁匠", "传送", "出口"])
+            def edit_legend(img, words=rows):
+                label("图例", (8, 4, 48, 8), align="center")(img)
+                for row, text in enumerate(words):
+                    label(text, (16, 16 + row * 8, 44, 8))(img)
+            frame(type_name, animation[0], edit_legend)
+
     # Nameplates are baked into the dialogue sprite rather than SpriteFont.
     # Detect each original plaque's paper rail on row 7; its inner area ends
     # before the decorative right corner. Erase the English ink only in rows
@@ -309,10 +359,12 @@ def repaint(project, extracted, dev):
     for text, area, align in (
         ("控制", (106, 2, 44, 8), "center"),
         ("移动", (64, 16, 32, 8), "left"),
+        # ARROWS is prose; the WASD label and toggle at x120..159 are inputs.
+        ("方向键", (162, 16, 34, 8), "left"),
         ("按键重新绑定", (56, 32, 144, 8), "center"),
         ("操作", (56, 44, 48, 8), "center"),
         ("控制器", (120, 44, 40, 8), "left"),
-        ("E键", (168, 44, 32, 8), "left"),
+        ("键盘", (168, 44, 32, 8), "left"),
         ("互动", (64, 56, 48, 8), "left"),
         ("菜单", (64, 64, 48, 8), "left"),
         ("地图", (64, 72, 48, 8), "left"),

@@ -123,14 +123,13 @@
 			var tn = (oc && oc.GetName) ? oc.GetName() : '';
 			if (!TYPE_CELL[tn]) return;                  // 只管菜单/说明类
 			var wi = inst.GetWorldInfo && inst.GetWorldInfo();
-			if (!wi) return
+			if (!wi || wi.GetHeight() < 16 || typeof wi.SetY !== "function") return;
 			var y = wi.GetY();
 			// 首次见到、或游戏把它移动了很大一段（重新摆版面）时，重新记基准；
 			// 小幅变化视为我们自己推的那 3px，保持基准不变。
 			if (inst.__cnY0 === undefined || Math.abs(y - (inst.__cnY0 + GAP_NUDGE)) > 20)
 				inst.__cnY0 = y;
-			try { if (wi.SetY === undefined && wi.SetY === null) return; } catch (e) { /* ignore */ }
-			var want = inst.__cnY0 + GAP_NUDGE;
+						var want = inst.__cnY0 + GAP_NUDGE;
 			if (Math.abs(wi.GetY() - want) > 0.01) wi.SetY(want);
 			if (!inst.__cnGapTimer) {                     // 游戏可能稍后才摆位置，再守 4 秒
 				inst.__cnGapTimer = 1; var n = 0;
@@ -166,6 +165,10 @@
 					for (var b = 0; b < boxes.length; b++) {
 						if (a === b) continue;
 						var wa = boxes[a][1], wb = boxes[b][1];
+						// Never pair coincident coordinates from different menu layers,
+						// and only move a multiline description below a single-row name.
+						if (wa.GetLayer() !== wb.GetLayer() || wa.GetHeight() > 10
+								|| wb.GetHeight() < 16) continue;
 						var flush = Math.abs(wb.GetY() - (wa.GetY() + wa.GetHeight())) <= 1;
 						var overlap = wb.GetX() < wa.GetX() + wa.GetWidth()
 							&& wa.GetX() < wb.GetX() + wb.GetWidth();
