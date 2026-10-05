@@ -80,23 +80,13 @@ Steam 更新可能会覆盖汉化文件。更新后请重新安装适配当前�
 
 ### 重建补丁
 
-`官方更新后重建.bat` 需要 Python 3、Pillow、NumPy 和 Node.js。第一次使用前先装好这些工具：
+依赖：Python 3、Node.js，以及 Python 包 Pillow、NumPy。
 
-1. 退出游戏，确认 Steam 已经更新完。
-2. 从 [Python 官网](https://www.python.org/downloads/windows/)下载并安装 Python 3。如果用传统 Windows 安装器，勾选 **Add python.exe to PATH**，保留 `pip` 组件。
-3. 重新打开命令提示符或 PowerShell，运行：
+```powershell
+python -m pip install pillow numpy
+```
 
-   ```powershell
-   python --version
-   python -m pip install pillow numpy
-   python -c "import PIL, numpy; print('安装好了')"
-   ```
-
-4. 从 [Node.js 官网](https://nodejs.org/)安装 LTS 版本。它用来检查补丁里的 JavaScript。装好后重新打开终端，运行 `node --version`，能看到版本号就可以了。
-5. 检查 `官方更新后重建.bat` 开头的 `set "GAME=..."`，把路径改成你的游戏目录。改过 `安装.bat` 不代表这个文件也改了。
-6. 双击 `官方更新后重建.bat`，等待完成。它会备份新版英文文件，重新生成补丁，检查后安装到游戏里。
-
-如果 `python` 命令用不了，但 `py --version` 能显示 Python 3 的版本号，就把上面命令里的 `python` 换成 `py -3`，比如 `py -3 -m pip install pillow numpy`。BAT 也会尝试用 `py -3`。
+Steam 更新完成后，退出游戏，修改 `官方更新后重建.bat` 中的 `GAME` 路径并运行脚本。脚本会备份新版英文资源、生成补丁、校验并安装。
 
 游戏更新后，之前备份的英文文件可能已经过时。如果想恢复英文，建议直接在 Steam 里验证游戏文件完整性。
 
@@ -129,7 +119,7 @@ python mod_src/tools/update_repack.py --game "D:\Games\Steam\steamapps\common\Is
 python mod_src/tools/update_repack.py --game "D:\Games\Steam\steamapps\common\Isle of Reveries" --no-install
 ```
 
-重建流程需要 Python 3、Pillow 和 NumPy；校验运行时 JavaScript 时还需要 Node.js。新版本游戏如果修改了资源图片，脚本会在检测到原图变化时停止，以避免沿用旧坐标覆盖新版美术资源。
+如果新版游戏修改了资源图片，重建脚本会停止，避免用旧坐标覆盖新版图片。
 
 ## 当前版本与验证
 
