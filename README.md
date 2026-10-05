@@ -2,7 +2,7 @@
 
 为 Steam 版 **Isle of Reveries** 制作的简体中文汉化补丁。项目包含可直接安装的补丁包、汉化词典、像素字体资源、构建工具和校验脚本。
 
-> 当前补丁信息见 [版本.txt](版本.txt)。根目录的 `www/assets.dat` 是可直接使用的汉化资源包，并通过 Git LFS 管理。
+> 当前补丁信息见 [版本.txt](版本.txt)。根目录的 `www/assets.dat` 是可直接使用的汉化资源包。
 
 ## 功能
 
@@ -17,13 +17,11 @@
 ## 安装
 
 1. 退出游戏。
-2. 装好 Git 和 Git LFS，运行下面的命令下载补丁：
+2. 安装 Git，运行下面的命令下载补丁：
 
    ```powershell
-   git lfs install
    git clone https://github.com/ZzySlhbcf/IsleOfReveriesHan.git
    cd IsleOfReveriesHan
-   git lfs pull
    ```
 
 3. 打开下载好的 `IsleOfReveriesHan` 文件夹，查看 [版本.txt](版本.txt)，确认补丁支持你的游戏版本。
@@ -71,7 +69,6 @@ Steam 更新可能会覆盖汉化文件。更新后请重新安装适配当前�
 
    ```powershell
    git pull --ff-only
-   git lfs pull
    ```
 
 3. 检查三个 BAT 文件里的游戏路径。如果更新后恢复了默认路径，重新修改。

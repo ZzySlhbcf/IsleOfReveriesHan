@@ -1,4 +1,4 @@
-www/assets.dat filter=lfs diff=lfs merge=lfs -text
+www/assets.dat -text
 *.bat text eol=crlf
 *.py text eol=lf
 *.js text eol=lf
