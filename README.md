@@ -2,7 +2,7 @@
 
 为 Steam 版 **Isle of Reveries** 制作的简体中文汉化补丁。项目包含可直接安装的补丁包、汉化词典、像素字体资源、构建工具和校验脚本。
 
-> 当前发布包：见 [版本.txt](版本.txt)。根目录的 `www/assets.dat` 是可直接使用的汉化资源包，并通过 Git LFS 管理。
+> 当前补丁信息见 [版本.txt](版本.txt)。根目录的 `www/assets.dat` 是可直接使用的汉化资源包，并通过 Git LFS 管理。
 
 ## 功能
 
@@ -17,14 +17,16 @@
 ## 安装
 
 1. 退出游戏。
-2. 下载本仓库的完整文件，并解压到任意临时目录。若通过 Git 克隆，请先安装 Git LFS：
+2. 安装 Git 和 Git LFS，然后克隆仓库以获取完整补丁资源：
 
    ```powershell
    git lfs install
    git clone https://github.com/ZzySlhbcf/IsleOfReveriesHan.git
+   cd IsleOfReveriesHan
+   git lfs pull
    ```
 
-3. 查看 [版本.txt](版本.txt)，确认补丁适用于当前游戏资源版本。
+3. 在克隆得到的 `IsleOfReveriesHan` 目录中查看 [版本.txt](版本.txt)，确认补丁适用于当前游戏资源版本。
 4. 如果游戏不在安装器默认的 `D:\Games\Steam\steamapps\common\Isle of Reveries`，用记事本打开 `安装.bat` 和 `卸载.bat`，修改开头的 `GAME=` 路径。
 5. 双击 `安装.bat`，按脚本提示完成安装。
 6. 启动游戏即可使用简体中文。
@@ -81,16 +83,18 @@ python mod_src/tools/update_repack.py --game "D:\Games\Steam\steamapps\common\Is
 python mod_src/tools/update_repack.py --game "D:\Games\Steam\steamapps\common\Isle of Reveries" --no-install
 ```
 
-重建流程需要 Python 3、Pillow；校验运行时 JavaScript 时还需要 Node.js。新版本游戏如果修改了资源图片，脚本会在检测到原图变化时停止，以避免沿用旧坐标覆盖新版美术资源。
+重建流程需要 Python 3、Pillow；校验运行时 JavaScript 时还需要 Node.js。运行回归测试还需要 NumPy，可执行 `python -m pip install numpy` 安装。新版本游戏如果修改了资源图片，脚本会在检测到原图变化时停止，以避免沿用旧坐标覆盖新版美术资源。
 
 ## 当前版本与验证
 
-截至 **2026 年 10 月 5 日**，发布包包含 1,873 个中文字符，资源包信息和 MD5 见 [版本.txt](版本.txt)。已完成的检查包括：
+截至 **2026 年 10 月 5 日**，发布包包含 4,195 条英中对照译文、1,873 个中文字符，资源包信息和 MD5 见 [版本.txt](版本.txt)。已完成的检查包括：
 
 - 资源包解包与重打包结构校验；
 - 中文字形逐格像素比对，检查缺字、翻转和错位；
 - 安装、卸载和官方更新后重建脚本的测试；
 - 译文一致性、审校词条、地图标记、控制页和存档摘要排版回归检查。
+
+2026-10-05 适配版已进行资源、字形及安装流程检查，尚未完成新版实机游玩验证。
 
 部分图片文字和制作人员姓名仍保留英文；标题画面的大型 `Isle of Reveries` Logo 也保留原样。官方后续新增或改写的句子如果尚未加入词典，会原样显示英文，不会显示乱码或空白。
 
@@ -108,9 +112,15 @@ python mod_src/tools/update_repack.py --game "D:\Games\Steam\steamapps\common\Is
 - `实际效果预览_*.png`：部分界面效果预览；
 - `mod_src/`：词典、字体、构建工具和测试。
 
+## 界面预览
+
+![地图标记](实际效果预览_地图标记.png)
+
+![控制设置](实际效果预览_控制页.png)
+
 ## 许可证与第三方内容
 
-本项目作者编写的构建工具、测试代码和项目文档采用 [MIT License](LICENSE) 发布。
+本项目原创构建工具、测试代码、中文译文和项目文档采用 [GNU Lesser General Public License v2.1 (LGPL-2.1)](LICENSE) 发布。
 
 `mod_src/fonts/` 中的字体及其修改和再分发条件以各字体目录内的许可证为准，相关文本位于 `mod_src/fonts/LICENSES/`。游戏本体、原始资源和商标归其权利人所有；本仓库不重新授权游戏本体内容。请支持游戏原作者，并遵守游戏及字体的适用许可条款。
 
