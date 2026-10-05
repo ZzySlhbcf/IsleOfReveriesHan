@@ -16,6 +16,8 @@
 
 ## 安装
 
+**直接安装或卸载成品补丁不需要安装 Python、Pillow、NumPy 或 Node.js。** 下面的 Python 环境说明仅适用于自行重建补丁。
+
 1. 退出游戏。
 2. 安装 Git 和 Git LFS，然后克隆仓库以获取完整补丁资源：
 
@@ -27,11 +29,34 @@
    ```
 
 3. 在克隆得到的 `IsleOfReveriesHan` 目录中查看 [版本.txt](版本.txt)，确认补丁适用于当前游戏资源版本。
-4. 如果游戏不在安装器默认的 `D:\Games\Steam\steamapps\common\Isle of Reveries`，用记事本打开 `安装.bat` 和 `卸载.bat`，修改开头的 `GAME=` 路径。
+4. 按下面的“设置游戏安装路径”说明，检查 `安装.bat`、`卸载.bat` 和 `官方更新后重建.bat` 中的 `GAME=` 路径。三个脚本分别保存路径，需要分别修改。
 5. 双击 `安装.bat`，按脚本提示完成安装。
 6. 启动游戏即可使用简体中文。
 
 安装器只替换游戏目录下的 `www/assets.dat`，不会修改游戏可执行文件、存档结构或 Steam 配置。
+
+## 设置游戏安装路径
+
+三个脚本默认使用：
+
+```bat
+set "GAME=D:\Games\Steam\steamapps\common\Isle of Reveries"
+```
+
+如果你的游戏安装在其他位置，请按以下步骤修改：
+
+1. 在 Steam 库中右键 **Isle of Reveries** → **管理** → **浏览本地文件**，打开游戏目录。
+2. 复制资源管理器地址栏中的完整路径。这个目录应包含 `Isle_of_Reveries.exe` 和 `www` 文件夹。
+3. 在补丁目录中，用记事本依次打开 `安装.bat`、`卸载.bat`、`官方更新后重建.bat`。
+4. 找到每个文件开头的 `set "GAME=..."`，把等号后面的目录改为刚刚复制的游戏路径。例如游戏装在 E 盘时：
+
+   ```bat
+   set "GAME=E:\SteamLibrary\steamapps\common\Isle of Reveries"
+   ```
+
+5. 保留 `set "GAME=` 和末尾的双引号，保存三个文件。保存时保留原来的 `.bat` 扩展名和编码，不要另存成 `.bat.txt`。
+
+填写的是**游戏文件夹路径**，不要填写游戏 EXE 的完整路径，也不要在结尾加 `\www` 或 `\assets.dat`。路径中可以有空格。只修改脚本里的路径，不需要修改脚本文件名。
 
 ## 卸载
 
@@ -39,17 +64,52 @@
 
 ## 官方更新后的处理方式
 
-Steam 更新可能会整体替换 `www/assets.dat`，使游戏恢复英文。更新后不要直接运行旧版 `安装.bat`，请按下面的方式重新生成适配新版资源的补丁：
+Steam 更新可能会整体替换 `www/assets.dat`，使游戏恢复英文。可以选择以下两种方式：
 
-1. 退出游戏，并确认 Steam 已完成更新。
-2. 安装 Python 3，以及 Pillow 和 NumPy：
+### 使用维护者更新的成品补丁（不需要 Python）
+
+适合只想玩游戏、不想配置开发环境的玩家。
+
+1. 确认仓库已经提供适配你当前游戏版本的补丁，查看 [版本.txt](版本.txt)。如果暂时还没有适配版，请等待维护者更新。
+2. 退出游戏。在本地补丁仓库目录中打开终端，获取更新：
 
    ```powershell
-   python -m pip install pillow numpy
+   git pull --ff-only
+   git lfs pull
    ```
 
-3. 修改 `官方更新后重建.bat` 顶部的 `GAME=` 路径（如有需要）。
-4. 双击 `官方更新后重建.bat`。脚本会备份新版英文资源、解包、重建字形与运行时补丁、校验并安装。
+3. 检查 `安装.bat`、`卸载.bat`、`官方更新后重建.bat` 中的 `GAME=` 是否仍为你的游戏路径。更新后的脚本可能恢复默认路径，需要再次修改。
+4. 双击新版 `安装.bat`，完成安装。
+
+此方式使用已经生成好的 `www/assets.dat`，无需运行 `官方更新后重建.bat`。安装器会检查资源版本；如果提示版本不匹配，请等待适配版或选择下面的自行重建方式。
+
+如果 `git pull` 提示本地修改与更新冲突，可以将仓库重新克隆到另一个文件夹，再按“设置游戏安装路径”说明修改新目录中的脚本。
+
+### 在自己电脑上重建补丁
+
+适合希望自行尝试适配官方更新的玩家。当前 `官方更新后重建.bat` 会调用 Python 构建工具，需要 **Python 3、Pillow、NumPy 和 Node.js**。
+
+1. 退出游戏，并确认 Steam 已完成更新。
+2. 安装 Python 3。可从 [Python 官方 Windows 下载页面](https://www.python.org/downloads/windows/)获取安装器；使用传统 Windows 安装器时，勾选 **Add python.exe to PATH**，并保留 `pip` 组件。
+3. 打开新的命令提示符或 PowerShell，执行下面的命令安装依赖并检查环境：
+
+   ```powershell
+   python --version
+   python -m pip install pillow numpy
+   python -c "import PIL, numpy; print('Python 依赖已就绪')"
+   ```
+
+4. 安装 [Node.js](https://nodejs.org/) 的 LTS 版本；它用于检查生成的 JavaScript。安装后重新打开终端，执行 `node --version`，确认可以显示版本号。
+5. 按“设置游戏安装路径”说明，修改 `官方更新后重建.bat` 顶部的 `set "GAME=..."`。这个脚本的路径要单独设置，即使已经修改过 `安装.bat` 也需要检查。
+6. 双击 `官方更新后重建.bat`。脚本会备份新版英文资源、解包、重建字形与运行时补丁、校验并安装。
+
+如果 `python` 命令不可用、但 `py --version` 能显示 Python 3 的版本号，可以用 `py -3` 替代上述命令里的 `python`，例如 `py -3 -m pip install pillow numpy`。重建脚本也会尝试使用 `py -3`。
+
+### 能否免安装 Python 自行重建？
+
+技术上可以：把 Python 运行环境、Pillow、NumPy 和重建工具一起打包成独立程序，并提供本流程需要的 Node.js，即可让玩家在无需单独安装这些环境的情况下重建。
+
+**当前仓库尚未提供这样的免安装重建工具。** 希望省去环境配置的玩家，可以选择上面的“使用维护者更新的成品补丁”。
 
 官方更新后，旧版卸载器保存的英文资源可能已经对应旧版本。需要恢复英文时，优先使用 Steam 的“验证文件完整性”。
 
