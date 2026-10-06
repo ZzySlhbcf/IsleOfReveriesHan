@@ -168,6 +168,22 @@ def check_art_inputs(bundle):
         }:
             print("  已复核 10 月 5 日更新：适配新版地图图例与标记界面，保留扩大的地牢地图和新版图集位置。")
             return
+        # October 6: compared all 17,952 named frames in unrotated game
+        # orientation. Only MiniMap changed; it is not repainted by the patch.
+        # The seven localized atlases only repack/move existing frames across
+        # sheets. No sprite pixels, anchors or collision data changed there.
+        # Repaint uses the new project geometry; pin this reviewed input pair.
+        if (old_md5, md5(bundle)) == (
+            "75ebd11d427862ac41df62eee4057650",
+            "82005493a00b8184dbf7dc9101f7e5a9",
+        ) and set(changed) == {
+            "images/dialoguebox-sheet0.webp", "images/shared-0-sheet0.webp",
+            "images/shared-10-sheet0.webp", "images/shared-3-sheet0.webp",
+            "images/shared-4-sheet1.webp", "images/shared-9-sheet7.webp",
+            "images/worldmapbg-sheet0.webp",
+        }:
+            print("  已复核 10 月 6 日更新：汉化帧画面与属性未变，按新版图集位置重绘，并保留官方小地图修改。")
+            return
         old_bundle = next((path for path in sorted(
             (bundle + ".cn-backup", *[os.path.join(os.path.dirname(bundle), name)
               for name in os.listdir(os.path.dirname(bundle))

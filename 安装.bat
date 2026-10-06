@@ -4,12 +4,12 @@ setlocal enabledelayedexpansion
 title Isle of Reveries 简体中文补丁 - 安装
 
 set "GAME=D:\Games\Steam\steamapps\common\Isle of Reveries"
-set "PATCHVER=润色版 对白11x11/菜单与说明9x10 (2026-10-05 译名与排版审校修正版)"
-set "BASEMD5=75ebd11d427862ac41df62eee4057650"
-set "PATCHMD5=97f022282c169dd06e1954f7df5e6a16"
-set "PREVMD5=03de7ead707179b5b8ded741dce1aa27"
-set "PREVMD5_OLDER=22e7e0c47a2e86efc8ffbdf5344b93ff"
-set "PREVMD5_OLDEST=49ec803d80b8fa16e809b667a0883ac6"
+set "PATCHVER=润色版 对白11x11/菜单与说明9x10 (2026-10-06 更新适配版)"
+set "BASEMD5=82005493a00b8184dbf7dc9101f7e5a9"
+set "PATCHMD5=fb9a0f89e29a329e0b915e9b30390c01"
+set "PREVMD5="
+set "PREVMD5_OLDER="
+set "PREVMD5_OLDEST="
 
 if not exist "%GAME%\Isle_of_Reveries.exe" (
   echo [错误] 没有找到游戏目录: %GAME%

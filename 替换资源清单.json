@@ -2,24 +2,24 @@
   "schema_version": 1,
   "note": "assets.dat 为整包替换；卸载时还原英文原包，不逐张覆盖贴图。",
   "base_bundle": {
-    "size": 73768160,
-    "md5": "75ebd11d427862ac41df62eee4057650"
+    "size": 73757550,
+    "md5": "82005493a00b8184dbf7dc9101f7e5a9"
   },
   "patch_bundle": {
-    "size": 74702064,
-    "md5": "97f022282c169dd06e1954f7df5e6a16"
+    "size": 74654305,
+    "md5": "fb9a0f89e29a329e0b915e9b30390c01"
   },
   "modified": [
     {
       "path": "data.json",
       "purpose": "汉化文字与字形元数据",
       "original": {
-        "size": 28420054,
-        "sha256": "88a2c7475237ac014b4482fcca9d2c6bbef08da1ebc85ecca0d43d23a2746279"
+        "size": 28423080,
+        "sha256": "a39507ac41edc265599ddddfd2c3b7adea9ea24292b3edff8cbbe2d54aae74e6"
       },
       "localized": {
-        "size": 28419712,
-        "sha256": "2938cf10fe10ab0a273dccdf5a18005a7410eddad10df26d9ff657e316a216c2"
+        "size": 28422739,
+        "sha256": "cb60cb3b7106d2fc7fb9a864284a713490c098bb695a747a52f7d05fbf846b69"
       }
     },
     {
@@ -86,12 +86,12 @@
       "path": "images/dialoguebox-sheet0.webp",
       "purpose": "对话框角色名（已知名牌全帧）",
       "original": {
-        "size": 97442,
-        "sha256": "0e6fabab085b47195d554a738b318a63f6d0951c7181709e2af92b37c774100e"
+        "size": 97440,
+        "sha256": "9e64d601472a1d8ccb19ef379ed222ffb9251e7f229725d2a77cc455a56732dd"
       },
       "localized": {
-        "size": 23928,
-        "sha256": "1eb3796675b7fa20a8c2bb696b1d9b0cfad1761a9adda6e3255fb51a0f449b4f"
+        "size": 23954,
+        "sha256": "cb0381937cfe6395bb071c1415a7bb90cdec73614a9c671cd05ea2770211958d"
       }
     },
     {
@@ -194,12 +194,12 @@
       "path": "images/shared-0-sheet0.webp",
       "purpose": "新版地图总览操作提示",
       "original": {
-        "size": 13614,
-        "sha256": "b8e16deb856565d11356a0163f0267e17a04ac3790aa71376e58a1dd08355fc7"
+        "size": 48388,
+        "sha256": "1cb5237c6eec32e93fd15eca13bc0e4fa98b15b6122fa7ae93f2ae17a4043948"
       },
       "localized": {
-        "size": 7168,
-        "sha256": "8886879d22eb3a2409ab04cb8595a9b232c3166bcc19d5fb91577ec2674a8718"
+        "size": 7742,
+        "sha256": "c9de6be037486532fc8a76c21549c5e0f496b17a933149add9d81a0508091eea"
       }
     },
     {
@@ -212,18 +212,6 @@
       "localized": {
         "size": 1446,
         "sha256": "7d445d58e778245fcb00aa017dd79f5666bc1c401d03e2e871cf7a9cb87fa4ff"
-      }
-    },
-    {
-      "path": "images/shared-10-sheet0.webp",
-      "purpose": "读取存档确认框",
-      "original": {
-        "size": 13918,
-        "sha256": "bef34865c5342ce7eae154cf39ca9ee19355cecf53746d178bb7d1a2ce7f6902"
-      },
-      "localized": {
-        "size": 5788,
-        "sha256": "1edbcd4cf33dd304daa618f1a34dfa0a54d2507945958e01875118d459ee5dc6"
       }
     },
     {
@@ -242,12 +230,12 @@
       "path": "images/shared-3-sheet0.webp",
       "purpose": "标题设置面板及游戏内存档菜单",
       "original": {
-        "size": 28440,
-        "sha256": "0364e7a534c090d2167d05832a51cf21abdf2a0b67b3d05a3621bbfd28ab9c8a"
+        "size": 25142,
+        "sha256": "ca168b82ab28be9426380a1429090c52e6bb702de1b0e82413deee1af597f59b"
       },
       "localized": {
-        "size": 5868,
-        "sha256": "6cfb859881fb5d786b92f9a832943f504d2aec3c1ba025b21ed94dbcd89780f0"
+        "size": 7260,
+        "sha256": "04db3e17cadb7f0cd0d82aae61dab68a1ea6cc190161f50f0889928c1baf5022"
       }
     },
     {
@@ -266,24 +254,36 @@
       "path": "images/shared-4-sheet1.webp",
       "purpose": "建造操作条",
       "original": {
-        "size": 6186,
-        "sha256": "99c94cb0e602c0ca07defaba353055cb54662537aa263179056ec6bec18b118c"
+        "size": 6398,
+        "sha256": "1c8af5abd59cc661ee9be390f30b195c66ecd5ed40cb3c784776748b553f9429"
       },
       "localized": {
-        "size": 4090,
-        "sha256": "9322c153a43e0dde7b169037dd8ddb9a4876fcf92b94664dbfc04da5bf007797"
+        "size": 4242,
+        "sha256": "e88a1fa6f26b7c9afcbac33e8ada1ed01d2af66538b41bc094eace89704d337b"
+      }
+    },
+    {
+      "path": "images/shared-9-sheet6.webp",
+      "purpose": "读取存档确认框",
+      "original": {
+        "size": 37528,
+        "sha256": "e6cc19d4d5e5d94918089aac2805eca93a62954ae6c6eddbff6e754cdd26782c"
+      },
+      "localized": {
+        "size": 23406,
+        "sha256": "ac8d33b1861a378dc69f4295ec5dcb0dda9043991a631057a3929e2a8130fa0e"
       }
     },
     {
       "path": "images/shared-9-sheet7.webp",
       "purpose": "新版地图图例",
       "original": {
-        "size": 6550,
-        "sha256": "bf5ab0ec0ba8b29830169f0c0928085caf7854609c1e264c3316d0f79101ca42"
+        "size": 11484,
+        "sha256": "159579272dff70840255666f9ae17e487687bc6ffb37c604a6694719960eecb2"
       },
       "localized": {
-        "size": 4414,
-        "sha256": "dcc8a08e913d675bf223389103a7245be4c1013cdbf3dc08455cc4318c11df32"
+        "size": 7744,
+        "sha256": "32599b7c64793dd93b180bfb030a34cc8784c481449606ee32d18ce7ddd24099"
       }
     },
     {
@@ -326,12 +326,12 @@
       "path": "images/worldmapbg-sheet0.webp",
       "purpose": "世界地图地区名及展开",
       "original": {
-        "size": 6918,
-        "sha256": "3bab3371abbac366f4caa68de9aa475cdc1c7a39d9ab13c0ddb14ba8e32262c3"
+        "size": 6940,
+        "sha256": "127f13972550f41e4cbff5ce44866272908b1ce9a7761002b78df8ce83fbec16"
       },
       "localized": {
-        "size": 1138,
-        "sha256": "7dcf2ad1845e3e0afb0d7c5b8391f229e1ac4cfa92fdcefb9c415a39ba8e21fb"
+        "size": 1148,
+        "sha256": "d13a6a702b3096cf1124ebe4e0e2a9fded95e8ca917e0ed9a154e209ae7574cb"
       }
     },
     {

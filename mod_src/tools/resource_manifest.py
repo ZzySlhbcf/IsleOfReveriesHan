@@ -28,7 +28,7 @@ IMAGE_LABELS = {
     "images/shared-3-sheet0.webp": "标题设置面板及游戏内存档菜单",
     "images/shared-3-sheet1.webp": "标题菜单设置操作提示",
     "images/shared-4-sheet1.webp": "建造操作条",
-    "images/shared-10-sheet0.webp": "读取存档确认框",
+    "images/shared-9-sheet6.webp": "读取存档确认框",
     "images/shared-0-sheet0.webp": "新版地图总览操作提示",
     "images/shared-0-sheet1.webp": "地图图例及定位、返回提示",
     "images/shared-9-sheet7.webp": "新版地图图例",
@@ -39,9 +39,14 @@ IMAGE_LABELS = {
     "images/worldmapbg-sheet0.webp": "世界地图地区名及展开",
 }
 
+# Preserve exact reviewed inventories across the October 5/6 repacks.
+OCTOBER_5_IMAGE_PATHS = (set(IMAGE_LABELS) - {
+    "images/shared-9-sheet6.webp",
+}) | {"images/shared-10-sheet0.webp"}
+
 # The last shipped version used these atlases before the October 5 repack.
 # Accept its inventory only for that exact official bundle during migration.
-SEPTEMBER_30_IMAGE_PATHS = (set(IMAGE_LABELS) - {
+SEPTEMBER_30_IMAGE_PATHS = (OCTOBER_5_IMAGE_PATHS - {
     "images/shared-2-sheet1.webp", "images/shared-10-sheet0.webp",
     "images/shared-0-sheet0.webp", "images/shared-0-sheet1.webp",
     "images/shared-9-sheet7.webp", "images/pinselect-sheet0.webp",
@@ -122,9 +127,11 @@ def changed_original_images(manifest, new_vanilla):
     """Detect changed atlas inputs before any updated game file is overwritten."""
     old = {item["path"]: item["original"]["sha256"]
            for item in manifest["modified"] if item["path"].startswith("images/") and not item["path"].startswith("images/cnfont_")}
-    expected = (SEPTEMBER_30_IMAGE_PATHS if
-                manifest.get("base_bundle", {}).get("md5") ==
-                "936aaed59f17c1b53eb5b1b2563a51aa" else set(IMAGE_LABELS))
+    base_md5 = manifest.get("base_bundle", {}).get("md5")
+    expected = {
+        "936aaed59f17c1b53eb5b1b2563a51aa": SEPTEMBER_30_IMAGE_PATHS,
+        "75ebd11d427862ac41df62eee4057650": OCTOBER_5_IMAGE_PATHS,
+    }.get(base_md5, set(IMAGE_LABELS))
     if manifest.get("schema_version") != 1 or set(old) != expected:
         raise ValueError("resource inventory is missing original image fingerprints")
     current = bundle_entries(new_vanilla, old)
