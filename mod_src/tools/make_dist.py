@@ -274,7 +274,7 @@ Steam 更新会整体覆盖 www\assets.dat，补丁会被冲掉（游戏回到�
   **全部一致、无上下翻转、无错位**；
 * 全部译文用字（{glyphs} 个不同汉字）在使用的开源像素字体中均有字形，无缺字；
 * 历史版本已实机确认对白/菜单/物品说明显示为中文，字格 11x11、字距 1px 生效；
-  2026-10-05 适配版已验证资源、图片字形及安装流程，尚未做新版实机游玩验证；
+  {build_day} 适配版已验证资源、图片字形及安装流程，尚未做新版实机游玩验证；
 * 安装/卸载/官方更新后重建三个脚本均在测试副本上实测通过；
 * 补丁只改 www\assets.dat 一个文件，不改动 exe、存档与 Steam 配置；
 * 弹琴传送、建造、世界地图及地图详情、两套设置页面、控制设置、存档选择、游戏内存档菜单、
@@ -377,7 +377,8 @@ def main():
                 .replace("{hash_command}", HASH_COMMAND))
     with open(os.path.join(DIST, "说明.txt"), "w", encoding="utf-8-sig", newline="\r\n") as f:
         f.write(README.replace("{game}", GAME).replace("{glyphs}", GLYPH_COUNT)
-                .replace("{dict_entries}", str(len(_translations))))
+                .replace("{dict_entries}", str(len(_translations)))
+                .replace("{build_day}", _BUILD_DAY))
     # 官方更新后重建脚本（模板见 tools/repack_bat.txt）
     tpl = os.path.join(ROOT, "tools", "repack_bat.txt")
     if os.path.exists(tpl):

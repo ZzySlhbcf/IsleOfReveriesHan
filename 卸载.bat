@@ -3,9 +3,9 @@ chcp 936 >nul
 setlocal
 title Isle of Reveries ºÚÃÂ÷–Œƒ≤π∂° - –∂‘ÿ
 
-set "GAME=D:\Games\Steam\steamapps\common\Isle of Reveries"
-set "BASEMD5=82005493a00b8184dbf7dc9101f7e5a9"
-set "PATCHMD5=fb9a0f89e29a329e0b915e9b30390c01"
+set "GAME=D:/Games/Steam/steamapps/common/Isle of Reveries"
+set "BASEMD5=de010887cb6fa586eb6b08bd1e302573"
+set "PATCHMD5=5131dea665466dc4a7232aeec8605f5a"
 
 
 if not exist "%GAME%\www\assets.dat.cn-backup" (

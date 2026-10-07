@@ -2,24 +2,24 @@
   "schema_version": 1,
   "note": "assets.dat 为整包替换；卸载时还原英文原包，不逐张覆盖贴图。",
   "base_bundle": {
-    "size": 73757550,
-    "md5": "82005493a00b8184dbf7dc9101f7e5a9"
+    "size": 73757450,
+    "md5": "de010887cb6fa586eb6b08bd1e302573"
   },
   "patch_bundle": {
-    "size": 74654305,
-    "md5": "fb9a0f89e29a329e0b915e9b30390c01"
+    "size": 74654128,
+    "md5": "5131dea665466dc4a7232aeec8605f5a"
   },
   "modified": [
     {
       "path": "data.json",
       "purpose": "汉化文字与字形元数据",
       "original": {
-        "size": 28423080,
-        "sha256": "a39507ac41edc265599ddddfd2c3b7adea9ea24292b3edff8cbbe2d54aae74e6"
+        "size": 28423325,
+        "sha256": "cdd3a91702fef0e5ffc269a77ac1483fc54649eb80f49c844bcfe4980c5f6d4b"
       },
       "localized": {
-        "size": 28422739,
-        "sha256": "cb60cb3b7106d2fc7fb9a864284a713490c098bb695a747a52f7d05fbf846b69"
+        "size": 28422984,
+        "sha256": "c96ed0b10f0a6449cbe5c32db7cfe37b41f14f7e00ad4832f5a48bf5b398d11f"
       }
     },
     {
@@ -86,12 +86,12 @@
       "path": "images/dialoguebox-sheet0.webp",
       "purpose": "对话框角色名（已知名牌全帧）",
       "original": {
-        "size": 97440,
-        "sha256": "9e64d601472a1d8ccb19ef379ed222ffb9251e7f229725d2a77cc455a56732dd"
+        "size": 97442,
+        "sha256": "0e6fabab085b47195d554a738b318a63f6d0951c7181709e2af92b37c774100e"
       },
       "localized": {
-        "size": 23954,
-        "sha256": "cb0381937cfe6395bb071c1415a7bb90cdec73614a9c671cd05ea2770211958d"
+        "size": 23928,
+        "sha256": "1eb3796675b7fa20a8c2bb696b1d9b0cfad1761a9adda6e3255fb51a0f449b4f"
       }
     },
     {
@@ -110,12 +110,12 @@
       "path": "images/dungeon_title-sheet0.webp",
       "purpose": "地牢开场标题",
       "original": {
-        "size": 133124,
-        "sha256": "3fd9886a5d5df94fd47db36af877a699a467a844918df82232bdc0e2f64e845c"
+        "size": 133694,
+        "sha256": "2a736a4f0a688780cefa8fffe5e2cfa794f1b718703d44eb1d8052b07e1dfee7"
       },
       "localized": {
-        "size": 34754,
-        "sha256": "21b8b75ee20fd7f5ccb791befd3df47902b1d7d8169439cb4d108dbad6f278e0"
+        "size": 35230,
+        "sha256": "465d9cc40facbc953aaf5bc0e4b92a90df56467bb89c1fac53c821dc301f43c0"
       }
     },
     {
@@ -134,24 +134,24 @@
       "path": "images/fileselect_cursor-sheet0.webp",
       "purpose": "存档选择按钮",
       "original": {
-        "size": 3398,
-        "sha256": "e56c24c865b0cf08bdd285ef7a722f07911e4ee2a787703ecbf41d0d576d655d"
+        "size": 3408,
+        "sha256": "0b5debfd0143f852f6ed411e2a1326eb2f3ab92500d71a8fb33b244529560893"
       },
       "localized": {
-        "size": 1934,
-        "sha256": "d43a829ab2ca42ad1303ae0506ef4304a6c3fe94dee4869d7b5679b0d1913b40"
+        "size": 1946,
+        "sha256": "c3845681938139189ffbae629b672e6b9501ea2ab7da2ffc31f925c465c240ad"
       }
     },
     {
       "path": "images/maps_sprite-sheet0.webp",
       "purpose": "世界地图详情标题及操作提示",
       "original": {
-        "size": 41046,
-        "sha256": "2fc87d99ed00272c34b129bfc9bbf20c5d4a3566bc89c88d612dea4ea1c93465"
+        "size": 41088,
+        "sha256": "6ee3391d38f22b3af4c886b8a0c8350c6016393426e5d518c0ebd823bf37ef9f"
       },
       "localized": {
-        "size": 11900,
-        "sha256": "1161ddaf14c87297ca520bb4bfcbe4fc8adfd6d7f04f6ebda127b7db50d02373"
+        "size": 11924,
+        "sha256": "c787d4a5295e5042afef0a5e8e8f45e8cd27003d3bb2bd0e257c3f34aaee26ad"
       }
     },
     {
@@ -326,24 +326,24 @@
       "path": "images/worldmapbg-sheet0.webp",
       "purpose": "世界地图地区名及展开",
       "original": {
-        "size": 6940,
-        "sha256": "127f13972550f41e4cbff5ce44866272908b1ce9a7761002b78df8ce83fbec16"
+        "size": 6964,
+        "sha256": "85ca220f9dfb542631602ba94722e4fadb931cc5ef14092f350064c47dd6d30b"
       },
       "localized": {
-        "size": 1148,
-        "sha256": "d13a6a702b3096cf1124ebe4e0e2a9fded95e8ca917e0ed9a154e209ae7574cb"
+        "size": 1232,
+        "sha256": "a950ca8246ef4fb0834f7be5c3ce225ddc5f0b162b51602a5357c3e7de7a527a"
       }
     },
     {
       "path": "scripts/c3runtime.js",
       "purpose": "汉化文字与字形元数据",
       "original": {
-        "size": 2077368,
-        "sha256": "22ab277334376abbe88dd2bdc0da7717b7e195d0c4a40bac2b03b93942881952"
+        "size": 2077383,
+        "sha256": "a23a2b594cfa99cc51ec9ff505b23a5e6cc0b72d4c2516b07e504b5d636a21c2"
       },
       "localized": {
-        "size": 2888234,
-        "sha256": "73c0f6991823974d04311bc0ed5a26986db7d72b6407f3fa2dc7b2e03e3e4509"
+        "size": 2888250,
+        "sha256": "216e241e8da6e7d71d0dc00214ef992395c44e3b96643a06e24134d047a9fc1b"
       }
     }
   ],

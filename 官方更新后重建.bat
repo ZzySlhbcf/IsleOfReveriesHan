@@ -11,7 +11,7 @@ rem
 rem  游戏目录写在下面这一行；如果你的游戏不在这里，用记事本把
 rem  GAME= 后面改成你的安装路径即可（结尾不要加反斜杠）。
 rem ============================================================
-set "GAME=D:\Games\Steam\steamapps\common\Isle of Reveries"
+set "GAME=D:/Games/Steam/steamapps/common/Isle of Reveries"
 set "HERE=%~dp0"
 
 if not exist "%GAME%\www\assets.dat" (

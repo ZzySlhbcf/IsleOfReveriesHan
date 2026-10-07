@@ -184,6 +184,20 @@ def check_art_inputs(bundle):
         }:
             print("  已复核 10 月 6 日更新：汉化帧画面与属性未变，按新版图集位置重绘，并保留官方小地图修改。")
             return
+        # October 7 (Steam Build 25769935): all 17,952 named frames retain
+        # their pixels and attributes. Five localized atlases are repacked;
+        # two unlocalized character pages move between sheets. Keep the new
+        # minecart event/runtime references by rebuilding from the new bundle.
+        if (old_md5, md5(bundle)) == (
+            "82005493a00b8184dbf7dc9101f7e5a9",
+            "de010887cb6fa586eb6b08bd1e302573",
+        ) and set(changed) == {
+            "images/dialoguebox-sheet0.webp", "images/dungeon_title-sheet0.webp",
+            "images/fileselect_cursor-sheet0.webp", "images/maps_sprite-sheet0.webp",
+            "images/worldmapbg-sheet0.webp",
+        }:
+            print("  已复核 10 月 7 日更新：所有动画帧画面与属性未变，按新版图集重绘并保留矿车脚本更新。")
+            return
         old_bundle = next((path for path in sorted(
             (bundle + ".cn-backup", *[os.path.join(os.path.dirname(bundle), name)
               for name in os.listdir(os.path.dirname(bundle))

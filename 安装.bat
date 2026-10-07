@@ -3,10 +3,10 @@ chcp 936 >nul
 setlocal enabledelayedexpansion
 title Isle of Reveries 简体中文补丁 - 安装
 
-set "GAME=D:\Games\Steam\steamapps\common\Isle of Reveries"
-set "PATCHVER=润色版 对白11x11/菜单与说明9x10 (2026-10-06 更新适配版)"
-set "BASEMD5=82005493a00b8184dbf7dc9101f7e5a9"
-set "PATCHMD5=fb9a0f89e29a329e0b915e9b30390c01"
+set "GAME=D:/Games/Steam/steamapps/common/Isle of Reveries"
+set "PATCHVER=润色版 对白11x11/菜单与说明9x10 (2026-10-07)"
+set "BASEMD5=de010887cb6fa586eb6b08bd1e302573"
+set "PATCHMD5=5131dea665466dc4a7232aeec8605f5a"
 set "PREVMD5="
 set "PREVMD5_OLDER="
 set "PREVMD5_OLDEST="
