@@ -408,6 +408,20 @@ def repaint(project, extracted, dev):
             frame("SaveTrinketBack", animation[0], edit_save_trinket_back,
                   frame_number=frame_number)
 
+    # October 9 adds a four-option save menu. Both alternating frames in
+    # all four states contain baked labels; retain the border and cursor.
+    def edit_save_trinket_back2(img):
+        if img.size != (256, 144):
+            raise ValueError(f"unexpected four-option save-menu size: {img.size}")
+        for y, text in ((56, "保存"), (65, "饰品"), (74, "传送"), (83, "返回")):
+            img.paste(PAPER, (100, y, 164, y + 8))
+            draw_text(img, font, text, 100, y, 64)
+    if "SaveTrinketBack2" in types:
+        for animation in types["SaveTrinketBack2"][7]:
+            for frame_number in range(len(animation[7])):
+                frame("SaveTrinketBack2", animation[0], edit_save_trinket_back2,
+                      frame_number=frame_number)
+
     # Confirmation window: preserve the A/B, Space/Z input glyphs and frame.
     for anim in ("GamePad", "Keyboard"):
         frame("Confirm_Load", anim, labels(

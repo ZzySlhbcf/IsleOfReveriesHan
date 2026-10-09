@@ -28,9 +28,10 @@ IMAGE_LABELS = {
     "images/shared-3-sheet0.webp": "标题设置面板及游戏内存档菜单",
     "images/shared-3-sheet1.webp": "标题菜单设置操作提示",
     "images/shared-4-sheet1.webp": "建造操作条",
-    "images/shared-9-sheet6.webp": "读取存档确认框",
-    "images/shared-0-sheet0.webp": "新版地图总览操作提示",
-    "images/shared-0-sheet1.webp": "地图图例及定位、返回提示",
+    "images/shared-10-sheet0.webp": "读取存档确认框",
+    "images/shared-0-sheet2.webp": "地图图例及定位、返回提示",
+    "images/shared-0-sheet1.webp": "新版地图总览操作提示",
+    "images/savetrinketback2-sheet0.webp": "新版存档、饰品、传送及返回菜单（全部交替帧）",
     "images/shared-9-sheet7.webp": "新版地图图例",
     "images/pinselect-sheet0.webp": "六种地图标记名称（含交替帧）",
     "images/trinketmenubg-sheet0.webp": "饰品页签",
@@ -39,8 +40,14 @@ IMAGE_LABELS = {
     "images/worldmapbg-sheet0.webp": "世界地图地区名及展开",
 }
 
+# Preserve the shipped October 7 inventory before the October 9 repack.
+OCTOBER_7_IMAGE_PATHS = (set(IMAGE_LABELS) - {
+    "images/shared-0-sheet2.webp", "images/shared-10-sheet0.webp",
+    "images/savetrinketback2-sheet0.webp",
+}) | {"images/shared-0-sheet0.webp", "images/shared-9-sheet6.webp"}
+
 # Preserve exact reviewed inventories across the October 5/6 repacks.
-OCTOBER_5_IMAGE_PATHS = (set(IMAGE_LABELS) - {
+OCTOBER_5_IMAGE_PATHS = (OCTOBER_7_IMAGE_PATHS - {
     "images/shared-9-sheet6.webp",
 }) | {"images/shared-10-sheet0.webp"}
 
@@ -131,6 +138,8 @@ def changed_original_images(manifest, new_vanilla):
     expected = {
         "936aaed59f17c1b53eb5b1b2563a51aa": SEPTEMBER_30_IMAGE_PATHS,
         "75ebd11d427862ac41df62eee4057650": OCTOBER_5_IMAGE_PATHS,
+        "82005493a00b8184dbf7dc9101f7e5a9": OCTOBER_7_IMAGE_PATHS,
+        "de010887cb6fa586eb6b08bd1e302573": OCTOBER_7_IMAGE_PATHS,
     }.get(base_md5, set(IMAGE_LABELS))
     if manifest.get("schema_version") != 1 or set(old) != expected:
         raise ValueError("resource inventory is missing original image fingerprints")

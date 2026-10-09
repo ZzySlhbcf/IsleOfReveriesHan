@@ -198,6 +198,31 @@ def check_art_inputs(bundle):
         }:
             print("  已复核 10 月 7 日更新：所有动画帧画面与属性未变，按新版图集重绘并保留矿车脚本更新。")
             return
+        # October 9 (Steam Build 25818045): reviewed all 17,987 frames.
+        # The minimap and two lever sprites change; 35 new frames include
+        # the four-option save menu. Existing text frames move across sheets
+        # with unchanged pixels. Pin the exact official bundles and inventory.
+        if (old_md5, md5(bundle)) == (
+            "de010887cb6fa586eb6b08bd1e302573",
+            "f4d502c77ac83211267fece9df8f33a9",
+        ) and set(changed) == {
+            "images/album_inputprompt-sheet0.webp",
+            "images/buildmenu_pages-sheet0.webp",
+            "images/dialoguebox-sheet0.webp",
+            "images/dungeon_title-sheet0.webp",
+            "images/fileselect_cursor-sheet0.webp",
+            "images/maps_sprite-sheet0.webp",
+            "images/pinselect-sheet0.webp",
+            "images/shared-0-sheet0.webp",
+            "images/shared-0-sheet1.webp",
+            "images/shared-3-sheet0.webp",
+            "images/shared-4-sheet1.webp",
+            "images/shared-9-sheet6.webp",
+            "images/shared-9-sheet7.webp",
+            "images/worldmapbg-sheet0.webp",
+        }:
+            print("  已复核 10 月 9 日更新：按新版图集重绘文字，保留小地图、机关及新增区域资源。")
+            return
         old_bundle = next((path for path in sorted(
             (bundle + ".cn-backup", *[os.path.join(os.path.dirname(bundle), name)
               for name in os.listdir(os.path.dirname(bundle))
