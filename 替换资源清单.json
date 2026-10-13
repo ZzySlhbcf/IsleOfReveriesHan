@@ -2,48 +2,48 @@
   "schema_version": 1,
   "note": "assets.dat 为整包替换；卸载时还原英文原包，不逐张覆盖贴图。",
   "base_bundle": {
-    "size": 74089078,
-    "md5": "f4d502c77ac83211267fece9df8f33a9"
+    "size": 74261562,
+    "md5": "09787a4355c8a22d6bf8119852865280"
   },
   "patch_bundle": {
-    "size": 74978534,
-    "md5": "48d16cfcd1ba32126cb6cf7acf8adb15"
+    "size": 75153499,
+    "md5": "701d2b11b8c670825784774a61d7ce1d"
   },
   "modified": [
     {
       "path": "data.json",
       "purpose": "汉化文字与字形元数据",
       "original": {
-        "size": 28663791,
-        "sha256": "95726687acd1d7604a76c288f7b274f250894b06cffdc562db221652815d3c1f"
+        "size": 28765962,
+        "sha256": "e897cbffed7c623a368fa71cd62b2d56db395d6cf5216dfc84e81ed56a99416c"
       },
       "localized": {
-        "size": 28663449,
-        "sha256": "90f8bc3656433296e41c88f6f48fedec0bdde767c5a951744df7ec575cbcbd7c"
+        "size": 28765615,
+        "sha256": "91e52ad3423ef1fcad5016b7b3eaabdb69c7efb1b1a3f07642d0337d4b05fac9"
       }
     },
     {
       "path": "images/album_inputprompt-sheet0.webp",
       "purpose": "相册操作提示",
       "original": {
-        "size": 1176,
-        "sha256": "769eb937ace328af6ec19f029e6c0e4bd7d4a20963facb0b3531f8f3f729c4e2"
+        "size": 1124,
+        "sha256": "aaf8965e7191f1b355c5d46570f90c5057a29e23264ae3a422a7dc6a896f92f8"
       },
       "localized": {
-        "size": 540,
-        "sha256": "86e74823e08ab40dce752c5ff45495f6228b98a140004571ccc9801a4a98a963"
+        "size": 514,
+        "sha256": "a555c668c11d113c2463c2c5ccc0b2ee5d094e3eac308441fbc561b864f24933"
       }
     },
     {
       "path": "images/buildmenu_pages-sheet0.webp",
       "purpose": "建造列表及详情",
       "original": {
-        "size": 21900,
-        "sha256": "01d32f7a22a4c0055157d3a9544ee3047ae7683f7ea232bee2bc397c86e9f369"
+        "size": 21856,
+        "sha256": "aefa5619d1f584d31c8f39d39caab3b1452f5fd8bf7ad969ad66bafae24f7ce3"
       },
       "localized": {
-        "size": 4910,
-        "sha256": "727cb90eba8541adbf862c39ddfb42233b79f85bd57be405ce7c43f31d28fa34"
+        "size": 4728,
+        "sha256": "82ee30c41a91ae5c2bca314ba089bb3638f0416f4c5bcb47dce6b15941c463e5"
       }
     },
     {
@@ -86,12 +86,12 @@
       "path": "images/dialoguebox-sheet0.webp",
       "purpose": "对话框角色名（已知名牌全帧）",
       "original": {
-        "size": 97460,
-        "sha256": "32c5b3c3f2fb6bcb5571a332c5f80a72694fbdc9cc6ad013eaffd9851420bafa"
+        "size": 97452,
+        "sha256": "a03e622253313d017039d24fcca7af6dad2557f3dd8ecb4ee6963075beca5030"
       },
       "localized": {
-        "size": 23920,
-        "sha256": "8fb3cbbf233ed4d4f76e3ea7fd68bd9eb15a73d760fe8807ba2e32d1ae96a62e"
+        "size": 23962,
+        "sha256": "1d4bb4088579fc34942006c084cdbf4c23aad9ea3cff7d535fc3492add045683"
       }
     },
     {
@@ -110,12 +110,12 @@
       "path": "images/dungeon_title-sheet0.webp",
       "purpose": "地牢开场标题",
       "original": {
-        "size": 133124,
-        "sha256": "3fd9886a5d5df94fd47db36af877a699a467a844918df82232bdc0e2f64e845c"
+        "size": 133020,
+        "sha256": "4669edc0496c15bc8a59fe2dd397b9f7ee864f330636cc056b9021b6345d00f6"
       },
       "localized": {
-        "size": 34754,
-        "sha256": "21b8b75ee20fd7f5ccb791befd3df47902b1d7d8169439cb4d108dbad6f278e0"
+        "size": 34858,
+        "sha256": "92ae30c5cf1c6bfc26decf229dbdd88695518876934617acd94e726ace1ea209"
       }
     },
     {
@@ -170,24 +170,24 @@
       "path": "images/pinselect-sheet0.webp",
       "purpose": "六种地图标记名称（含交替帧）",
       "original": {
-        "size": 4618,
-        "sha256": "830a8cc200b70375edd2054d09cdbebf1190f13f5d607267aff704fd3818a568"
+        "size": 4608,
+        "sha256": "34825d45aecfcaa5f73f81bbd86bf7e9b77e5043dd09ac6ae18298398ae580a7"
       },
       "localized": {
-        "size": 1610,
-        "sha256": "b68686390bff5e7d31e628b8be7849f29441466f17ab43243dcf4e14d30dc01d"
+        "size": 1592,
+        "sha256": "82ad696ab69cf5c741cb143628b311fb35aa5499466639e21be2b948f09d7d6e"
       }
     },
     {
       "path": "images/savetrinketback2-sheet0.webp",
       "purpose": "新版存档、饰品、传送及返回菜单（全部交替帧）",
       "original": {
-        "size": 18460,
-        "sha256": "811a10acc413ea755fb2bf8bdbf673eb5d1c6ab773355f9524592f9cc15a537b"
+        "size": 18470,
+        "sha256": "f452e70ae22a08f6058b3160392c0b8103e1a52ccef575c8de7ce79b2d437213"
       },
       "localized": {
-        "size": 894,
-        "sha256": "514b1db7f3606dc026f12c8a1e7eb52f836c69de12ffbc071d660356015910f8"
+        "size": 896,
+        "sha256": "fbc34e786d84a21654589f7523ccfb3fd9be8f95c1e4a415c675a7f648c07c19"
       }
     },
     {
@@ -350,12 +350,12 @@
       "path": "scripts/c3runtime.js",
       "purpose": "汉化文字与字形元数据",
       "original": {
-        "size": 2078793,
-        "sha256": "9a248c0dec962c5b471f02594db14ea0b2b8ec68f29c14104a7f412c4bfc3e2e"
+        "size": 2079536,
+        "sha256": "700bfb1841b76a75faffbe4f20ea6880e6b95fedfb330f23659c71e50c757cbc"
       },
       "localized": {
-        "size": 2892119,
-        "sha256": "87e07e0e6307cef202de388e8cc1a20951361c5d4c7d83c2dd6dfd031b012522"
+        "size": 2895218,
+        "sha256": "72a3c4b3caf22229ce85287b0e7d9c5d6a7582db3c47b81e8874a38ec9277adb"
       }
     }
   ],
