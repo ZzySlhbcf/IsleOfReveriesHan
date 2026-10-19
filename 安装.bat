@@ -4,9 +4,9 @@ setlocal enabledelayedexpansion
 title Isle of Reveries 简体中文补丁 - 安装
 
 set "GAME=D:/Games/Steam/steamapps/common/Isle of Reveries"
-set "PATCHVER=润色版 Build 25873081.01 对白11x11/菜单与说明9x10 (2026-10-13)"
-set "BASEMD5=09787a4355c8a22d6bf8119852865280"
-set "PATCHMD5=701d2b11b8c670825784774a61d7ce1d"
+set "PATCHVER=润色版 Build 26020230.01 对白11x11/菜单与说明9x10 (2026-10-19)"
+set "BASEMD5=b721f6e98de94c90fbbb73dc31230fb3"
+set "PATCHMD5=ca53b91197aa9dc5ec1379e046c06ef6"
 set "PREVMD5="
 set "PREVMD5_OLDER="
 set "PREVMD5_OLDEST="
